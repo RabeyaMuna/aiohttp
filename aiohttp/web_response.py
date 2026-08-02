@@ -641,6 +641,7 @@ class Response(StreamResponse):
         if content_type is not None and "charset" in content_type:
             raise ValueError("charset must not be in content_type argument")
 
+        text_content_type: str | None = None
         if text is not None:
             if hdrs.CONTENT_TYPE in real_headers:
                 if content_type or charset:
@@ -658,6 +659,8 @@ class Response(StreamResponse):
                 if charset is None:
                     charset = "utf-8"
                 real_headers[hdrs.CONTENT_TYPE] = content_type + "; charset=" + charset
+                if content_type.count("/") != 1:
+                    text_content_type = "text/plain"
                 body = text.encode(charset)
                 text = None
         elif hdrs.CONTENT_TYPE in real_headers:
@@ -673,6 +676,12 @@ class Response(StreamResponse):
             real_headers[hdrs.CONTENT_TYPE] = content_type
 
         super().__init__(status=status, reason=reason, _real_headers=real_headers)
+
+        if text_content_type is not None:
+            assert charset is not None
+            self._stored_content_type = self._headers[hdrs.CONTENT_TYPE]
+            self._content_type = text_content_type
+            self._content_dict = {"charset": charset}
 
         if text is not None:
             self.text = text
