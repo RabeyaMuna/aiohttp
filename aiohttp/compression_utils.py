@@ -25,7 +25,7 @@ try:
     if sys.version_info >= (3, 14):
         from compression.zstd import ZstdDecompressor  # noqa: I900
     else:  # TODO(PY314): Remove mentions of backports.zstd across codebase
-        from backports.zstd import ZstdDecompressor
+        from backports.zstd import ZstdDecompressor  # type: ignore[import-not-found]
 
     HAS_ZSTD = True
 except ImportError:
@@ -299,7 +299,7 @@ class ZSTDDecompressor:
         self._obj = ZstdDecompressor()
 
     def decompress_sync(self, data: bytes) -> bytes:
-        return self._obj.decompress(data)
+        return cast(bytes, self._obj.decompress(data))
 
     def flush(self) -> bytes:
         return b""

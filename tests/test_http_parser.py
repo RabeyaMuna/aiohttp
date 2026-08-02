@@ -41,9 +41,9 @@ try:
     if sys.version_info >= (3, 14):
         import compression.zstd as zstandard  # noqa: I900
     else:
-        import backports.zstd as zstandard
+        import backports.zstd as zstandard  # type: ignore[import-not-found]
 except ImportError:
-    zstandard = None  # type: ignore[assignment]
+    zstandard = None
 
 REQUEST_PARSERS = [HttpRequestParserPy]
 RESPONSE_PARSERS = [HttpResponseParserPy]

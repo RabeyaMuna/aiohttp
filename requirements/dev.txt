@@ -60,7 +60,11 @@ coverage==7.10.7
     # via
     #   -r requirements/test-common.in
     #   pytest-cov
-cryptography==46.0.2
+cryptography==46.0.7 ; platform_python_implementation != "PyPy" or python_version >= "3.11"
+    # via
+    #   pyjwt
+    #   trustme
+cryptography==45.0.7 ; platform_python_implementation == "PyPy" and python_version < "3.11"
     # via
     #   pyjwt
     #   trustme
