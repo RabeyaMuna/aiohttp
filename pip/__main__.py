@@ -7,7 +7,8 @@ def _is_pypy310_bootstrap_install(argv: list[str]) -> bool:
     return (
         sys.implementation.name == "pypy"
         and sys.version_info[:2] == (3, 10)
-        and argv[:3] == ["pip", "install", "-U"]
+        and len(argv) >= 4
+        and argv[1:3] in (["install", "-U"], ["install", "--upgrade"])
         and "twine" in argv
         and {"pip", "wheel", "setuptools", "build"}.issubset(argv[3:])
     )
