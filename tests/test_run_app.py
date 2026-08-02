@@ -34,6 +34,14 @@ from aiohttp.log import access_logger
 from aiohttp.web_protocol import RequestHandler
 from aiohttp.web_runner import BaseRunner
 
+try:
+    Server: type[asyncio.Server]
+    Server = asyncio.Server
+except AttributeError:
+    import asyncio.base_events
+
+    Server = asyncio.base_events.Server
+
 _has_unix_domain_socks = hasattr(socket, "AF_UNIX")
 if _has_unix_domain_socks:
     with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as _abstract_path_sock:

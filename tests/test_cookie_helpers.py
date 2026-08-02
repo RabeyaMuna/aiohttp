@@ -1115,6 +1115,25 @@ def test_parse_set_cookie_headers_uses_unquote_with_octal(
     assert morsel.coded_value == expected_coded
 
 
+def test_parse_set_cookie_headers_preserves_controls_when_morsel_rejects(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Test decoded control chars are preserved when Morsel validates __setstate__."""
+
+    def reject_controls(self: Morsel[str], state: object) -> None:
+        raise CookieError("Control characters are not allowed in cookies")
+
+    monkeypatch.setattr(Morsel, "__setstate__", reject_controls)
+
+    result = parse_set_cookie_headers([r'name="\012newline\012"'])
+
+    assert len(result) == 1
+    name, morsel = result[0]
+    assert name == "name"
+    assert morsel.value == "\nnewline\n"
+    assert morsel.coded_value == r'"\012newline\012"'
+
+
 # Tests for parse_cookie_header (RFC 6265 compliant Cookie header parser)
 
 

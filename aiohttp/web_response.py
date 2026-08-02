@@ -539,6 +539,7 @@ class Response(StreamResponse):
         zlib_executor_size: Optional[int] = None,
         zlib_executor: Optional[Executor] = None,
     ) -> None:
+        text_content_type: Optional[str] = None
         if body is not None and text is not None:
             raise ValueError("body and text are not allowed together")
 
@@ -566,6 +567,8 @@ class Response(StreamResponse):
                     content_type = "text/plain"
                 if charset is None:
                     charset = "utf-8"
+                if content_type.count("/") != 1:
+                    text_content_type = "text/plain"
                 real_headers[hdrs.CONTENT_TYPE] = content_type + "; charset=" + charset
                 body = text.encode(charset)
                 text = None
@@ -582,6 +585,12 @@ class Response(StreamResponse):
             real_headers[hdrs.CONTENT_TYPE] = content_type
 
         super().__init__(status=status, reason=reason, _real_headers=real_headers)
+
+        if text_content_type is not None:
+            assert charset is not None
+            self._stored_content_type = real_headers[hdrs.CONTENT_TYPE]
+            self._content_type = text_content_type
+            self._content_dict = {"charset": charset}
 
         if text is not None:
             self.text = text
