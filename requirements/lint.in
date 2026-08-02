@@ -1,6 +1,7 @@
 aiodns
 backports.zstd; implementation_name == "cpython"
 blockbuster
+cryptography==45.0.7; platform_python_implementation == "PyPy" and python_version < "3.11"
 freezegun
 isal
 mypy; implementation_name == "cpython"

@@ -1,5 +1,6 @@
 blockbuster
 coverage
+cryptography==45.0.7; platform_python_implementation == "PyPy" and python_version < "3.11"
 freezegun
 isal; python_version < "3.14" # no wheel for 3.14
 mypy; implementation_name == "cpython"

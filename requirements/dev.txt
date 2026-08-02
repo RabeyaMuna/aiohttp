@@ -62,10 +62,14 @@ coverage==7.10.7
     #   pytest-cov
 cryptography==46.0.7 ; platform_python_implementation != "PyPy" or python_version >= "3.11"
     # via
+    #   -r requirements/lint.in
+    #   -r requirements/test-common.in
     #   pyjwt
     #   trustme
 cryptography==45.0.7 ; platform_python_implementation == "PyPy" and python_version < "3.11"
     # via
+    #   -r requirements/lint.in
+    #   -r requirements/test-common.in
     #   pyjwt
     #   trustme
 distlib==0.4.0
