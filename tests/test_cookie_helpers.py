@@ -86,6 +86,19 @@ def test_parse_set_cookie_headers_simple() -> None:
     assert result[1][1].value == "abc123"
 
 
+def test_parse_set_cookie_headers_preserves_controls_when_morsel_rejects() -> None:
+    headers = ['name="\\012newline\\012"']
+
+    result = parse_set_cookie_headers(headers)
+
+    assert len(result) == 1
+    name, morsel = result[0]
+    assert name == "name"
+    assert morsel.key == "name"
+    assert morsel.value == "\nnewline\n"
+    assert morsel.coded_value == '"\\012newline\\012"'
+
+
 def test_parse_set_cookie_headers_with_attributes() -> None:
     """Test parse_set_cookie_headers with cookie attributes."""
     headers = [
