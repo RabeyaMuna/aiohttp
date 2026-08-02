@@ -53,9 +53,10 @@ IS_HPUX = sys.platform.startswith("hp-ux")
 IS_LINUX = sys.platform.startswith("linux")
 
 # Load non-UTF stdlib codecs used by tests before blockbuster starts wrapping
-# per-test code. On Windows, importing a codec lazily may try to write a .pyc
-# into the hosted toolcache and trigger a false-positive blocking I/O failure.
-codecs.lookup("cp1251")
+# per-test code. Importing a codec lazily may try to write a .pyc into the
+# hosted toolcache and trigger a false-positive blocking I/O failure.
+for codec in ("cp1251", "koi8-r"):
+    codecs.lookup(codec)
 
 
 @pytest.fixture(autouse=HAS_BLOCKBUSTER)
