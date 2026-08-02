@@ -1,5 +1,6 @@
 import asyncio
 import base64
+import codecs
 import os
 import socket
 import ssl
@@ -50,6 +51,11 @@ pytest_plugins = ("aiohttp.pytest_plugin", "pytester")
 
 IS_HPUX = sys.platform.startswith("hp-ux")
 IS_LINUX = sys.platform.startswith("linux")
+
+# Load non-UTF stdlib codecs used by tests before blockbuster starts wrapping
+# per-test code. On Windows, importing a codec lazily may try to write a .pyc
+# into the hosted toolcache and trigger a false-positive blocking I/O failure.
+codecs.lookup("cp1251")
 
 
 @pytest.fixture(autouse=HAS_BLOCKBUSTER)
