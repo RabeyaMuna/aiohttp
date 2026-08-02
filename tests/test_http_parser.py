@@ -5,6 +5,7 @@ import re
 import sys
 from collections.abc import Iterable
 from contextlib import suppress
+from types import ModuleType
 from typing import Any
 from unittest import mock
 from urllib.parse import quote
@@ -29,6 +30,7 @@ from aiohttp.http_parser import (
 )
 from aiohttp.http_writer import HttpVersion
 
+zstandard: ModuleType | None
 try:
     try:
         import brotlicffi as brotli
@@ -39,9 +41,10 @@ except ImportError:
 
 try:
     if sys.version_info >= (3, 14):
-        import compression.zstd as zstandard  # noqa: I900
+        import compression.zstd as _zstandard  # noqa: I900
     else:
-        import backports.zstd as zstandard  # type: ignore[import-not-found]
+        import backports.zstd as _zstandard
+    zstandard = _zstandard
 except ImportError:
     zstandard = None
 
@@ -1837,6 +1840,7 @@ class TestParsePayload:
 
     @pytest.mark.skipif(zstandard is None, reason="zstandard is not installed")
     async def test_http_payload_zstandard(self, protocol: BaseProtocol) -> None:
+        assert zstandard is not None
         compressed = zstandard.compress(b"zstd data")
         out = aiohttp.StreamReader(protocol, 2**16, loop=asyncio.get_running_loop())
         p = HttpPayloadParser(

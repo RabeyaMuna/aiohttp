@@ -35,12 +35,12 @@ else:
 __all__ = ("GunicornWebWorker", "GunicornUVLoopWebWorker")
 
 
-class GunicornWebWorker(base.Worker):
+class GunicornWebWorker(base.Worker):  # type: ignore[misc,no-any-unimported]
     DEFAULT_AIOHTTP_LOG_FORMAT = AccessLogger.LOG_FORMAT
     DEFAULT_GUNICORN_LOG_FORMAT = GunicornAccessLogFormat.default
 
     def __init__(self, *args: Any, **kw: Any) -> None:
-        super().__init__(*args, **kw)  # type: ignore[no-untyped-call]
+        super().__init__(*args, **kw)
 
         self._task: asyncio.Task[None] | None = None
         self.exit_code = 0
@@ -51,7 +51,7 @@ class GunicornWebWorker(base.Worker):
         self.loop = asyncio.new_event_loop()
         asyncio.set_event_loop(self.loop)
 
-        super().init_process()  # type: ignore[no-untyped-call]
+        super().init_process()
 
     def run(self) -> None:
         self._task = self.loop.create_task(self._run())
@@ -114,8 +114,8 @@ class GunicornWebWorker(base.Worker):
         # If our parent changed then we shut down.
         pid = os.getpid()
         try:
-            while self.alive:
-                self.notify()  # type: ignore[no-untyped-call]
+            while self.alive:  # type: ignore[has-type]
+                self.notify()
 
                 cnt = server.requests_count
                 if self.max_requests and cnt > self.max_requests:
