@@ -1,6 +1,7 @@
 # HTTP client functional tests against aiohttp.web server
 
 import asyncio
+import codecs
 import datetime
 import http.cookies
 import io
@@ -51,6 +52,11 @@ from aiohttp.payload import (
 from aiohttp.pytest_plugin import AiohttpClient, AiohttpServer
 from aiohttp.test_utils import TestClient, TestServer, unused_port
 from aiohttp.typedefs import Handler, Query
+
+
+# Load this codec before async tests start, so blockbuster does not catch
+# Python writing the codec module's .pyc during request construction.
+codecs.lookup("koi8-r")
 
 
 @pytest.fixture(autouse=True)
