@@ -1,6 +1,6 @@
 import asyncio
 import base64
-import codecs
+import importlib
 import os
 import socket
 import ssl
@@ -55,7 +55,7 @@ IS_LINUX = sys.platform.startswith("linux")
 
 # Load this codec before async tests start, so blockbuster does not catch
 # Python writing the codec module's .pyc during request construction.
-codecs.lookup("koi8-r")
+importlib.import_module("encodings.koi8_r")
 
 
 @pytest.fixture(autouse=HAS_BLOCKBUSTER)
