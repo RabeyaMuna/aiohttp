@@ -16,7 +16,7 @@ from typing import Union
 
 from yarl import URL
 
-from ._cookie_helpers import preserve_morsel_with_coded_value
+from ._cookie_helpers import _set_morsel_state, preserve_morsel_with_coded_value
 from .abc import AbstractCookieJar, ClearCookiePredicate
 from .helpers import is_ip_address
 from .typedefs import LooseCookies, PathLike, StrOrURL
@@ -387,11 +387,7 @@ class CookieJar(AbstractCookieJar):
             value, coded_value = _SIMPLE_COOKIE.value_encode(cookie.value)
         else:
             coded_value = value = cookie.value
-        # We use __setstate__ instead of the public set() API because it allows us to
-        # bypass validation and set already validated state. This is more stable than
-        # setting protected attributes directly and unlikely to change since it would
-        # break pickling.
-        morsel.__setstate__({"key": cookie.key, "value": value, "coded_value": coded_value})  # type: ignore[attr-defined]
+        _set_morsel_state(morsel, cookie.key, value, coded_value)
         return morsel
 
     @staticmethod
