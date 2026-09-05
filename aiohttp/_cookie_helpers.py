@@ -6,14 +6,15 @@ These are not part of the public API and may change without notice.
 """
 
 import re
-from http.cookies import Morsel
-from typing import List, Optional, Sequence, Tuple, cast
+from collections.abc import Sequence
+from http.cookies import CookieError, Morsel
+from typing import List, Optional, Tuple, cast
 
 from .log import internal_logger
 
 __all__ = (
-    "parse_set_cookie_headers",
     "parse_cookie_header",
+    "parse_set_cookie_headers",
     "preserve_morsel_with_coded_value",
 )
 
@@ -105,9 +106,7 @@ def preserve_morsel_with_coded_value(cookie: Morsel[str]) -> Morsel[str]:
     # bypass validation and set already validated state. This is more stable than
     # setting protected attributes directly and unlikely to change since it would
     # break pickling.
-    mrsl_val.__setstate__(  # type: ignore[attr-defined]
-        {"key": cookie.key, "value": cookie.value, "coded_value": cookie.coded_value}
-    )
+    _set_morsel_state(mrsl_val, cookie.key, cookie.value, cookie.coded_value)
     return mrsl_val
 
 
@@ -154,6 +153,35 @@ def _unquote(value: str) -> str:
     #    \"   --> "
     #
     return _unquote_sub(_unquote_replace, value)
+
+
+
+
+def _set_morsel_state(
+    morsel: Morsel[str], key: str, value: str, coded_value: str
+) -> None:
+    """
+    Set the state of a Morsel object, handling CookieError gracefully.
+
+    This function attempts to use __setstate__ to set the morsel state directly,
+    which bypasses validation. If that fails (e.g., due to control characters
+    in older Python versions), it falls back to using the public set() API.
+
+    Args:
+        morsel: The Morsel object to set state on
+        key: The cookie key
+        value: The decoded cookie value
+        coded_value: The original coded cookie value
+    """
+    try:
+        # Use __setstate__ to bypass validation and preserve exact state
+        morsel.__setstate__(  # type: ignore[attr-defined]
+            {"key": key, "value": value, "coded_value": coded_value}
+        )
+    except CookieError:
+        # Fall back to public API if __setstate__ fails
+        # This may modify the value slightly but preserves the cookie
+        morsel.set(key, value, coded_value)
 
 
 def parse_cookie_header(header: str) -> List[Tuple[str, Morsel[str]]]:
@@ -206,9 +234,7 @@ def parse_cookie_header(header: str) -> List[Tuple[str, Morsel[str]]]:
                     )
                 else:
                     morsel = Morsel()
-                    morsel.__setstate__(  # type: ignore[attr-defined]
-                        {"key": key, "value": _unquote(value), "coded_value": value}
-                    )
+                    _set_morsel_state(morsel, key, _unquote(value), value)
                     cookies.append((key, morsel))
 
             # Move to next cookie or end
@@ -231,9 +257,7 @@ def parse_cookie_header(header: str) -> List[Tuple[str, Morsel[str]]]:
         # bypass validation and set already validated state. This is more stable than
         # setting protected attributes directly and unlikely to change since it would
         # break pickling.
-        morsel.__setstate__(  # type: ignore[attr-defined]
-            {"key": key, "value": _unquote(value), "coded_value": value}
-        )
+        _set_morsel_state(morsel, key, _unquote(value), value)
 
         cookies.append((key, morsel))
 
@@ -322,9 +346,7 @@ def parse_set_cookie_headers(headers: Sequence[str]) -> List[Tuple[str, Morsel[s
                     # bypass validation and set already validated state. This is more stable than
                     # setting protected attributes directly and unlikely to change since it would
                     # break pickling.
-                    current_morsel.__setstate__(  # type: ignore[attr-defined]
-                        {"key": key, "value": _unquote(value), "coded_value": value}
-                    )
+                    _set_morsel_state(current_morsel, key, _unquote(value), value)
                     parsed_cookies.append((key, current_morsel))
                     morsel_seen = True
             else:

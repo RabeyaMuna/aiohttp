@@ -1,21 +1,26 @@
 import asyncio
 import base64
+import codecs
 import os
 import platform
 import socket
 import ssl
 import sys
 import time
-from collections.abc import AsyncIterator, Callable, Iterator
+from collections.abc import AsyncIterator, Callable, Generator, Iterator
 from concurrent.futures import Future, ThreadPoolExecutor
 from hashlib import md5, sha1, sha256
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import Any, Generator
+from typing import Any
 from unittest import mock
 from uuid import uuid4
 
 import pytest
+
+# Preload codecs to avoid blocking I/O during test execution
+codecs.lookup("cp1251")
+codecs.lookup("koi8-r")
 
 try:
     from blockbuster import blockbuster_ctx

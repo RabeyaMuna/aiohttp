@@ -6,6 +6,7 @@ import json
 import math
 import time
 import warnings
+from collections.abc import Iterator, MutableMapping
 from concurrent.futures import Executor
 from http import HTTPStatus
 from http.cookies import SimpleCookie
@@ -13,8 +14,6 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Dict,
-    Iterator,
-    MutableMapping,
     Optional,
     Union,
     cast,
@@ -44,7 +43,7 @@ from .typedefs import JSONEncoder, LooseHeaders
 REASON_PHRASES = {http_status.value: http_status.phrase for http_status in HTTPStatus}
 LARGE_BODY_SIZE = 1024**2
 
-__all__ = ("ContentCoding", "StreamResponse", "Response", "json_response")
+__all__ = ("ContentCoding", "Response", "StreamResponse", "json_response")
 
 
 if TYPE_CHECKING:
@@ -494,7 +493,7 @@ class StreamResponse(BaseClass, HeadersMixin):
             if version != HttpVersion11:
                 raise RuntimeError(
                     "Using chunked encoding is forbidden "
-                    "for HTTP/{0.major}.{0.minor}".format(request.version)
+                    f"for HTTP/{request.version.major}.{request.version.minor}"
                 )
             if not self._must_be_empty_body:
                 writer.enable_chunking()
@@ -637,6 +636,7 @@ class Response(StreamResponse):
         charset: Optional[str] = None,
         zlib_executor_size: Optional[int] = None,
         zlib_executor: Optional[Executor] = None,
+        text_content_type: Optional[str] = None,
     ) -> None:
         if body is not None and text is not None:
             raise ValueError("body and text are not allowed together")
@@ -679,8 +679,18 @@ class Response(StreamResponse):
             if charset is not None:
                 content_type += "; charset=" + charset
             real_headers[hdrs.CONTENT_TYPE] = content_type
+            # Normalize invalid content_type (when content_type.count('/') != 1)
+            if content_type.count('/') != 1:
+                text_content_type = 'text/plain'
 
         super().__init__(status=status, reason=reason, _real_headers=real_headers)
+
+        # Handle text_content_type normalization
+        if text_content_type is not None:
+            assert charset is not None, "charset must be provided for text_content_type normalization"
+            self._stored_content_type = self._headers[hdrs.CONTENT_TYPE]
+            self._content_type = text_content_type
+            self._content_dict = {'charset': charset}
 
         if text is not None:
             self.text = text
