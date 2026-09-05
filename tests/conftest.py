@@ -38,6 +38,14 @@ except ImportError:
     TRUSTME = False
 
 
+def pytest_configure(config: pytest.Config) -> None:
+    # Pre-load codecs to prevent lazy import I/O during tests in hosted CI environments.
+    # This prevents false-positive blocking I/O errors when tests import codecs.
+    import codecs
+    for codec in ("cp1251", "koi8-r"):
+        codecs.lookup(codec)
+
+
 try:
     if sys.platform == "win32":
         import winloop as uvloop
