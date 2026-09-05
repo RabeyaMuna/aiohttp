@@ -1,5 +1,5 @@
 import warnings
-from typing import Any, Dict, Iterable, List, Optional, Set  # noqa
+from typing import Any, Iterable, Optional, Set
 
 from yarl import URL
 

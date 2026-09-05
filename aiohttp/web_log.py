@@ -5,7 +5,7 @@ import os
 import re
 import time as time_mod
 from collections import namedtuple
-from typing import Any, Callable, Dict, Iterable, List, Tuple  # noqa
+from typing import Callable, Dict, Iterable, List, Tuple
 
 from .abc import AbstractAccessLogger
 from .web_request import BaseRequest

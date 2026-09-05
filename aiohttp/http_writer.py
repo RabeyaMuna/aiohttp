@@ -2,9 +2,9 @@
 
 import asyncio
 import sys
-from typing import (  # noqa
+from typing import (
     TYPE_CHECKING,
-    Any,
+
     Awaitable,
     Callable,
     Iterable,

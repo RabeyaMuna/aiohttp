@@ -23,7 +23,7 @@ except ImportError:  # pragma: no cover
 
 try:
     if sys.version_info >= (3, 14):
-        from compression.zstd import ZstdDecompressor  # noqa: I900
+        from compression.zstd import ZstdDecompressor
     else:  # TODO(PY314): Remove mentions of backports.zstd across codebase
         from backports.zstd import ZstdDecompressor
 

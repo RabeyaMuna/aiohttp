@@ -8,20 +8,20 @@ from enum import Enum, auto
 from mimetypes import MimeTypes
 from stat import S_ISREG
 from types import MappingProxyType
-from typing import (  # noqa
+from typing import (
     IO,
     TYPE_CHECKING,
     Any,
     Awaitable,
     Callable,
     Final,
-    Iterator,
-    List,
+
+
     Optional,
     Set,
     Tuple,
-    Union,
-    cast,
+
+
 )
 
 from . import hdrs

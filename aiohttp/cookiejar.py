@@ -4,7 +4,6 @@ import contextlib
 import datetime
 import heapq
 import itertools
-import os  # noqa
 import pathlib
 import pickle
 import re
