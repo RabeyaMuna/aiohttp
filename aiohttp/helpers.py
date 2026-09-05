@@ -20,7 +20,7 @@ import weakref
 from collections import namedtuple
 from collections.abc import Callable, Iterable, Iterator, Mapping
 from contextlib import suppress
-from email.message import Message
+from email.message import EmailMessage, Message
 from email.parser import HeaderParser
 from email.policy import HTTP
 from email.utils import parsedate
@@ -358,7 +358,7 @@ def parse_mimetype(mimetype: str) -> MimeType:
     )
 
 
-class EnsureOctetStream(Message):
+class EnsureOctetStream(EmailMessage):
     def __init__(self) -> None:
         super().__init__()
         self.set_default_type("application/octet-stream")
@@ -390,7 +390,7 @@ def parse_content_type(raw: str) -> tuple[str, MappingProxyType[str, str]]:
     MappingProxyType of parameters. The default returned value
     is `application/octet-stream`
     """
-    msg = HeaderParser(EnsureOctetStream, policy=HTTP).parsestr(f"Content-Type: {raw}")
+    msg = HeaderParser(lambda: EnsureOctetStream(), policy=HTTP).parsestr(f"Content-Type: {raw}")
     content_type = msg.get_content_type()
     params = msg.get_params(())
     content_dict = dict(params[1:])  # First element is content type again
