@@ -204,7 +204,10 @@ def netrc_from_env() -> netrc.netrc | None:
         netrc_path = Path(netrc_env)
     else:
         try:
-            home_dir = Path.home()
+            # Try to get home directory from environment variables
+            # On Windows, Path.home() uses USERPROFILE, but tests may set HOME
+            # On Unix, Path.home() uses HOME
+            home_dir = Path(os.environ.get("HOME") or Path.home())
         except RuntimeError as e:
             # if pathlib can't resolve home, it may raise a RuntimeError
             client_logger.debug(
