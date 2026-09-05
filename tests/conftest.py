@@ -1,5 +1,6 @@
 import asyncio
 import base64
+import codecs
 import os
 import socket
 import ssl
@@ -46,6 +47,10 @@ try:
 except ImportError:
     uvloop = None  # type: ignore[assignment]
 
+
+# Preload codecs to avoid blocking I/O during tests with blockbuster
+codecs.lookup('cp1251')
+codecs.lookup('koi8-r')
 
 pytest_plugins = ("aiohttp.pytest_plugin", "pytester")
 

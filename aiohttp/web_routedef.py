@@ -34,6 +34,7 @@ __all__ = (
 
 
 class AbstractRouteDef(abc.ABC):
+    __slots__ = ()
     @abc.abstractmethod
     def register(self, router: UrlDispatcher) -> list[AbstractRoute]:
         """Register itself into the given router."""
