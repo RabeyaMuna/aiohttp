@@ -141,38 +141,7 @@ class RequestHandler(BaseProtocol):
 
     """
 
-    __slots__ = (
-        "_request_count",
-        "_keepalive",
-        "_manager",
-        "_request_handler",
-        "_request_factory",
-        "_tcp_keepalive",
-        "_next_keepalive_close_time",
-        "_keepalive_handle",
-        "_keepalive_timeout",
-        "_lingering_time",
-        "_messages",
-        "_message_tail",
-        "_handler_waiter",
-        "_waiter",
-        "_task_handler",
-        "_upgrade",
-        "_payload_parser",
-        "_request_parser",
-        "_reading_paused",
-        "logger",
-        "debug",
-        "access_log",
-        "access_logger",
-        "_close",
-        "_force_close",
-        "_current_request",
-        "_timeout_ceil_threshold",
-        "_request_in_progress",
-        "_logging_enabled",
-        "_cache",
-    )
+    __slots__ = ()
 
     def __init__(
         self,
@@ -701,8 +670,9 @@ class RequestHandler(BaseProtocol):
                 self.log_exception("Missing return statement on request handler")
             else:
                 self.log_exception(
-                    "Web-handler should return a response instance, "
-                    "got {!r}".format(resp)
+                    "Web-handler should return a response instance, " "got {!r}".format(
+                        resp
+                    )
                 )
             exc = HTTPInternalServerError()
             resp = Response(

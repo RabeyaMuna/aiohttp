@@ -776,7 +776,6 @@ async def test_ssl_client_alpn(
     aiohttp_client: AiohttpClient,
     ssl_ctx: ssl.SSLContext,
 ) -> None:
-
     async def handler(request: web.Request) -> web.Response:
         assert request.transport is not None
         sslobj = request.transport.get_extra_info("ssl_object")
@@ -1655,7 +1654,9 @@ async def test_POST_DATA_with_charset(aiohttp_client) -> None:
     client = await aiohttp_client(app)
 
     form = aiohttp.FormData()
-    form.add_field("name", "текст", content_type="text/plain; charset=koi8-r")
+    form.add_field(
+        "name", "текст".encode("koi8-r"), content_type="text/plain; charset=koi8-r"
+    )
 
     resp = await client.post("/", data=form)
     assert 200 == resp.status
@@ -1675,7 +1676,7 @@ async def test_POST_DATA_formdats_with_charset(aiohttp_client) -> None:
     client = await aiohttp_client(app)
 
     form = aiohttp.FormData(charset="koi8-r")
-    form.add_field("name", "текст")
+    form.add_field("name", "текст".encode("koi8-r"))
 
     resp = await client.post("/", data=form)
     assert 200 == resp.status
@@ -1694,7 +1695,9 @@ async def test_POST_DATA_with_charset_post(aiohttp_client) -> None:
     client = await aiohttp_client(app)
 
     form = aiohttp.FormData()
-    form.add_field("name", "текст", content_type="text/plain; charset=koi8-r")
+    form.add_field(
+        "name", "текст".encode("koi8-r"), content_type="text/plain; charset=koi8-r"
+    )
 
     resp = await client.post("/", data=form)
     assert 200 == resp.status
@@ -3645,7 +3648,6 @@ async def test_aiohttp_request_ctx_manager_close_sess_on_error(
 
 
 async def test_aiohttp_request_ctx_manager_not_found() -> None:
-
     with pytest.raises(aiohttp.ClientConnectionError):
         async with aiohttp.request("GET", "http://wrong-dns-name.com"):
             assert False, "never executed"  # pragma: no cover
@@ -5216,9 +5218,7 @@ async def test_invalid_redirect_origin_closes_payload(
     ):
         await client.post("/redirect", data=payload)
 
-    assert (
-        payload.close_called
-    ), "Payload.close() was not called when InvalidUrlRedirectClientError (invalid origin) was raised"
+    assert payload.close_called, "Payload.close() was not called when InvalidUrlRedirectClientError (invalid origin) was raised"
 
 
 async def test_amazon_like_cookie_scenario(aiohttp_client: AiohttpClient) -> None:

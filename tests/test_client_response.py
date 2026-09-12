@@ -656,6 +656,11 @@ async def test_json_custom_content_type(loop, session) -> None:
 
 
 async def test_json_custom_loader(loop, session) -> None:
+    import sys
+
+    if sys.platform.startswith("win"):
+        pytest.skip("Avoid importing cp1251 codec on Windows")
+
     response = ClientResponse(
         "get",
         URL("http://def-cl-resp.org"),
@@ -1132,6 +1137,11 @@ def test_redirect_history_in_exception() -> None:
 
 
 async def test_response_read_triggers_callback(loop, session) -> None:
+    import sys
+
+    if sys.platform.startswith("win"):
+        pytest.skip("Avoid importing cp1251 codec on Windows")
+
     trace = mock.Mock()
     trace.send_response_chunk_received = mock.AsyncMock()
     response_method = "get"

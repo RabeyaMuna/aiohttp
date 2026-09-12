@@ -51,7 +51,6 @@ class FormData:
         filename: Optional[str] = None,
         content_transfer_encoding: Optional[str] = None,
     ) -> None:
-
         if isinstance(value, io.IOBase):
             self._is_multipart = True
         elif isinstance(value, (bytes, bytearray, memoryview)):
@@ -141,16 +140,30 @@ class FormData:
         """Encode a list of fields using the multipart/form-data MIME format"""
         for dispparams, headers, value in self._fields:
             try:
+                val = value
+                if isinstance(value, str):
+                    # determine effective charset: explicit self._charset takes precedence,
+                    # otherwise try to detect from Content-Type header if present
+                    charset = self._charset
+                    if not charset and hdrs.CONTENT_TYPE in headers:
+                        ct = headers[hdrs.CONTENT_TYPE]
+                        idx = ct.lower().find("charset=")
+                        if idx != -1:
+                            # extract charset value up to next delimiter
+                            charset = ct[idx + 8 :].split(";", 1)[0].strip()
+                    if charset:
+                        val = value.encode(charset)
+
                 if hdrs.CONTENT_TYPE in headers:
                     part = payload.get_payload(
-                        value,
+                        val,
                         content_type=headers[hdrs.CONTENT_TYPE],
                         headers=headers,
                         encoding=self._charset,
                     )
                 else:
                     part = payload.get_payload(
-                        value, headers=headers, encoding=self._charset
+                        val, headers=headers, encoding=self._charset
                     )
             except Exception as exc:
                 raise TypeError(
