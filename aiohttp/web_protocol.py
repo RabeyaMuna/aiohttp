@@ -160,7 +160,6 @@ class RequestHandler(BaseProtocol):
         "_upgrade",
         "_payload_parser",
         "_request_parser",
-        "_reading_paused",
         "logger",
         "debug",
         "access_log",
@@ -170,7 +169,7 @@ class RequestHandler(BaseProtocol):
         "_current_request",
         "_timeout_ceil_threshold",
         "_request_in_progress",
-        "_logging_enabled",
+        "_logging_ENABLED",
         "_cache",
     )
 
@@ -701,8 +700,9 @@ class RequestHandler(BaseProtocol):
                 self.log_exception("Missing return statement on request handler")
             else:
                 self.log_exception(
-                    "Web-handler should return a response instance, "
-                    "got {!r}".format(resp)
+                    "Web-handler should return a response instance, " "got {!r}".format(
+                        resp
+                    )
                 )
             exc = HTTPInternalServerError()
             resp = Response(

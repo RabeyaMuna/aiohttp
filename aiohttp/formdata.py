@@ -51,7 +51,6 @@ class FormData:
         filename: Optional[str] = None,
         content_transfer_encoding: Optional[str] = None,
     ) -> None:
-
         if isinstance(value, io.IOBase):
             self._is_multipart = True
         elif isinstance(value, (bytes, bytearray, memoryview)):
@@ -141,17 +140,48 @@ class FormData:
         """Encode a list of fields using the multipart/form-data MIME format"""
         for dispparams, headers, value in self._fields:
             try:
+                # Determine content-type and charset (if provided)
+                content_type = None
                 if hdrs.CONTENT_TYPE in headers:
-                    part = payload.get_payload(
-                        value,
-                        content_type=headers[hdrs.CONTENT_TYPE],
-                        headers=headers,
-                        encoding=self._charset,
-                    )
+                    content_type = headers[hdrs.CONTENT_TYPE]
+                    # try to extract charset from content-type header
+                    charset = self._charset
+                    parts = [p.strip() for p in content_type.split(";")]
+                    for param in parts[1:]:
+                        if param.lower().startswith("charset="):
+                            charset = param.split("=", 1)[1].strip()
+                            break
                 else:
-                    part = payload.get_payload(
-                        value, headers=headers, encoding=self._charset
-                    )
+                    charset = self._charset
+
+                # If value is a str, encode it using detected charset so
+                # payload.get_payload receives bytes and won't choke on
+                # non-UTF-8 encodings (e.g. koi8-r).
+                if isinstance(value, str):
+                    try:
+                        raw_value = value.encode(charset)
+                    except Exception:
+                        # fallback to configured charset with replacement
+                        raw_value = value.encode(self._charset, errors="replace")
+
+                    if content_type is not None:
+                        part = payload.get_payload(
+                            raw_value, content_type=content_type, headers=headers
+                        )
+                    else:
+                        part = payload.get_payload(raw_value, headers=headers)
+                else:
+                    if content_type is not None:
+                        part = payload.get_payload(
+                            value,
+                            content_type=content_type,
+                            headers=headers,
+                            encoding=self._charset,
+                        )
+                    else:
+                        part = payload.get_payload(
+                            value, headers=headers, encoding=self._charset
+                        )
             except Exception as exc:
                 raise TypeError(
                     "Can not serialize value type: %r\n "

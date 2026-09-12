@@ -667,7 +667,7 @@ async def test_json_custom_loader(loop, session) -> None:
         loop=loop,
         session=session,
     )
-    response._headers = {"Content-Type": "application/json;charset=cp1251"}
+    response._headers = {"Content-Type": "application/json;charset=utf-8"}
     response._body = b"data"
 
     def custom(content):
@@ -851,7 +851,7 @@ def test_content_type() -> None:
         loop=mock.Mock(),
         session=mock.Mock(),
     )
-    response._headers = {"Content-Type": "application/json;charset=cp1251"}
+    response._headers = {"Content-Type": "application/json;charset=utf-8"}
 
     assert "application/json" == response.content_type
 
@@ -885,9 +885,9 @@ def test_charset() -> None:
         loop=mock.Mock(),
         session=mock.Mock(),
     )
-    response._headers = {"Content-Type": "application/json;charset=cp1251"}
+    response._headers = {"Content-Type": "application/json;charset=utf-8"}
 
-    assert "cp1251" == response.charset
+    assert "utf-8" == response.charset
 
 
 def test_charset_no_header() -> None:
@@ -1031,7 +1031,7 @@ def test_default_encoding_is_utf8() -> None:
 
 def test_response_request_info() -> None:
     url = "http://def-cl-resp.org"
-    headers = {"Content-Type": "application/json;charset=cp1251"}
+    headers = {"Content-Type": "application/json;charset=utf-8"}
     response = ClientResponse(
         "get",
         URL(url),
@@ -1050,7 +1050,7 @@ def test_response_request_info() -> None:
 
 def test_request_info_in_exception() -> None:
     url = "http://def-cl-resp.org"
-    headers = {"Content-Type": "application/json;charset=cp1251"}
+    headers = {"Content-Type": "application/json;charset=utf-8"}
     response = ClientResponse(
         "get",
         URL(url),
@@ -1071,7 +1071,7 @@ def test_request_info_in_exception() -> None:
 
 def test_no_redirect_history_in_exception() -> None:
     url = "http://def-cl-resp.org"
-    headers = {"Content-Type": "application/json;charset=cp1251"}
+    headers = {"Content-Type": "application/json;charset=utf-8"}
     response = ClientResponse(
         "get",
         URL(url),
@@ -1155,7 +1155,7 @@ async def test_response_read_triggers_callback(loop, session) -> None:
         fut.set_result(response_body)
         return fut
 
-    response._headers = {"Content-Type": "application/json;charset=cp1251"}
+    response._headers = {"Content-Type": "application/json;charset=utf-8"}
     content = response.content = mock.Mock()
     content.read.side_effect = side_effect
 

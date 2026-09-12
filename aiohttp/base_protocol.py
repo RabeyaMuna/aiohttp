@@ -12,7 +12,6 @@ class BaseProtocol(asyncio.Protocol):
         "_paused",
         "_drain_waiter",
         "_connection_lost",
-        "_reading_paused",
         "transport",
     )
 

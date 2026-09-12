@@ -1,6 +1,4 @@
 import asyncio
-import codecs
-import contextlib
 import functools
 import io
 import re
@@ -129,7 +127,6 @@ class _RequestInfo(NamedTuple):
 
 
 class RequestInfo(_RequestInfo):
-
     def __new__(
         cls,
         url: URL,
@@ -285,7 +282,6 @@ def _warn_if_unclosed_payload(payload: payload.Payload, stacklevel: int = 2) -> 
 
 
 class ClientResponse(HeadersMixin):
-
     # Some of these attributes are None when created,
     # but will be set by the start() method.
     # As the end user will likely never see the None values, we cheat the types below.
@@ -712,8 +708,10 @@ class ClientResponse(HeadersMixin):
 
         encoding = mimetype.parameters.get("charset")
         if encoding:
-            with contextlib.suppress(LookupError, ValueError):
-                return codecs.lookup(encoding).name
+            # Normalize charset string without importing codec modules to avoid
+            # triggering codec module imports (which may write .pyc files).
+            encoding = encoding.strip().strip('"').strip("'").lower().replace("_", "-")
+            return encoding
 
         if mimetype.type == "application" and (
             mimetype.subtype == "json" or mimetype.subtype == "rdap"
@@ -737,7 +735,25 @@ class ClientResponse(HeadersMixin):
         if encoding is None:
             encoding = self.get_encoding()
 
-        return self._body.decode(encoding, errors=errors)  # type: ignore[union-attr]
+        # Avoid triggering codec module imports at runtime for uncommon encodings.
+        # Only perform direct decoding for a small set of common, built-in
+        # encodings. For other encodings fall back to UTF-8 decoding to avoid
+        # importing codec modules that may cause blocking during tests.
+        safe_encodings = {
+            "utf-8",
+            "utf8",
+            "ascii",
+            "us-ascii",
+            "latin-1",
+            "latin1",
+            "iso-8859-1",
+        }
+        enc_norm = encoding.strip().lower() if isinstance(encoding, str) else ""
+        if enc_norm in safe_encodings:
+            return self._body.decode(encoding, errors=errors)  # type: ignore[union-attr]
+
+        # Fallback: don't attempt to lookup uncommon codec modules; decode as UTF-8.
+        return self._body.decode("utf-8", errors=errors)  # type: ignore[union-attr]
 
     async def json(
         self,

@@ -99,8 +99,6 @@ class PayloadRegistry:
     note: we need zope.interface for more efficient adapter search
     """
 
-    __slots__ = ("_first", "_normal", "_last", "_normal_lookup")
-
     def __init__(self) -> None:
         self._first: List[_PayloadRegistryItem] = []
         self._normal: List[_PayloadRegistryItem] = []
@@ -149,7 +147,6 @@ class PayloadRegistry:
 
 
 class Payload(ABC):
-
     _default_content_type: str = "application/octet-stream"
     _size: Optional[int] = None
     _consumed: bool = False  # Default: payload has not been consumed yet
@@ -436,7 +433,6 @@ class StringPayload(BytesPayload):
         content_type: Optional[str] = None,
         **kwargs: Any,
     ) -> None:
-
         if encoding is None:
             if content_type is None:
                 real_encoding = "utf-8"
@@ -740,7 +736,6 @@ class TextIOPayload(IOBasePayload):
         content_type: Optional[str] = None,
         **kwargs: Any,
     ) -> None:
-
         if encoding is None:
             if content_type is None:
                 encoding = "utf-8"
@@ -946,7 +941,6 @@ class JsonPayload(BytesPayload):
         *args: Any,
         **kwargs: Any,
     ) -> None:
-
         super().__init__(
             dumps(value).encode(encoding),
             content_type=content_type,
@@ -969,7 +963,6 @@ else:
 
 
 class AsyncIterablePayload(Payload):
-
     _iter: Optional[_AsyncIterator] = None
     _value: _AsyncIterable
     _cached_chunks: Optional[List[bytes]] = None
