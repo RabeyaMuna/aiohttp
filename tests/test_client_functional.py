@@ -785,7 +785,6 @@ async def test_ssl_client_alpn(
     aiohttp_client: AiohttpClient,
     ssl_ctx: ssl.SSLContext,
 ) -> None:
-
     async def handler(request: web.Request) -> web.Response:
         assert request.transport is not None
         sslobj = request.transport.get_extra_info("ssl_object")
@@ -3800,6 +3799,8 @@ async def test_netrc_auth_from_home_directory(  # type: ignore[misc]
     async with client.get("/") as r:
         assert r.status == 200
         content = await r.json()
+    # Ensure the Authorization header is present before indexing to avoid KeyError
+    assert "Authorization" in content["headers"]
     assert content["headers"]["Authorization"] == "Basic bmV0cmNfdXNlcjpuZXRyY19wYXNz"
 
 
@@ -5277,9 +5278,7 @@ async def test_invalid_redirect_origin_closes_payload(
     ):
         await client.post("/redirect", data=payload)
 
-    assert (
-        payload.close_called
-    ), "Payload.close() was not called when InvalidUrlRedirectClientError (invalid origin) was raised"
+    assert payload.close_called, "Payload.close() was not called when InvalidUrlRedirectClientError (invalid origin) was raised"
 
 
 async def test_amazon_like_cookie_scenario(aiohttp_client: AiohttpClient) -> None:
