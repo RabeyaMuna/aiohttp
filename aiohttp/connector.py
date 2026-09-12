@@ -830,8 +830,10 @@ def _make_ssl_context(verified: bool) -> SSLContext:
 # since they do blocking I/O to load certificates from disk,
 # and imports should always be done before the event loop starts
 # or in a thread.
-_SSL_CONTEXT_VERIFIED = _make_ssl_context(True)
-_SSL_CONTEXT_UNVERIFIED = _make_ssl_context(False)
+# Defer creation of the default SSLContext objects to avoid blocking during import.
+# The contexts will be created lazily on first use.
+_SSL_CONTEXT_VERIFIED = None
+_SSL_CONTEXT_UNVERIFIED = None
 
 
 class TCPConnector(BaseConnector):
@@ -921,9 +923,9 @@ class TCPConnector(BaseConnector):
 
         self._use_dns_cache = use_dns_cache
         self._cached_hosts = _DNSCacheTable(ttl=ttl_dns_cache)
-        self._throttle_dns_futures: dict[tuple[str, int], set[asyncio.Future[None]]] = (
-            {}
-        )
+        self._throttle_dns_futures: dict[
+            tuple[str, int], set[asyncio.Future[None]]
+        ] = {}
         self._family = family
         self._local_addr_infos = aiohappyeyeballs.addr_to_addr_infos(local_addr)
         self._happy_eyeballs_delay = happy_eyeballs_delay

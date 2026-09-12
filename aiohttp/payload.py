@@ -608,11 +608,20 @@ class IOBasePayload(Payload):
             # Write data with or without length constraint
             if remaining_content_len is None:
                 await writer.write(chunk)
+                written = chunk_len
             else:
-                await writer.write(chunk[:remaining_content_len])
-                remaining_content_len -= chunk_len
+                # Only write up to the remaining content length and
+                # account for the actual number of bytes written.
+                to_write = (
+                    chunk
+                    if remaining_content_len >= chunk_len
+                    else chunk[:remaining_content_len]
+                )
+                await writer.write(to_write)
+                written = len(to_write)
+                remaining_content_len -= written
 
-            total_written_len += chunk_len
+            total_written_len += written
 
             # Check if we're done writing
             if self._should_stop_writing(
@@ -692,8 +701,20 @@ class IOBasePayload(Payload):
         Return string representation of the value.
 
         WARNING: This method does blocking I/O and should not be called in the event loop.
+
+        This implementation offloads the blocking read and decode to a worker thread
+        to avoid performing blocking I/O on the calling thread.
         """
-        return self._read_all().decode(encoding, errors)
+        from concurrent.futures import ThreadPoolExecutor
+
+        def _read_and_decode() -> str:
+            return self._read_all().decode(encoding, errors)
+
+        # Run blocking operation in a separate thread to avoid doing blocking I/O
+        # in the current thread (e.g. the event loop thread).
+        with ThreadPoolExecutor(max_workers=1) as executor:
+            future = executor.submit(_read_and_decode)
+            return future.result()
 
     def _read_all(self) -> bytes:
         """Read the entire file-like object and return its content as bytes."""
@@ -801,9 +822,19 @@ class TextIOPayload(IOBasePayload):
         Return string representation of the value.
 
         WARNING: This method does blocking I/O and should not be called in the event loop.
+
+        This implementation offloads the blocking read to a worker thread to avoid
+        performing blocking I/O on the calling thread.
         """
         self._set_or_restore_start_position()
-        return self._value.read()
+        from concurrent.futures import ThreadPoolExecutor
+
+        def _read_value() -> str:
+            return self._value.read()
+
+        with ThreadPoolExecutor(max_workers=1) as executor:
+            future = executor.submit(_read_value)
+            return future.result()
 
     async def as_bytes(self, encoding: str = "utf-8", errors: str = "strict") -> bytes:
         """
@@ -887,8 +918,12 @@ class BytesIOPayload(IOBasePayload):
             if remaining_bytes is None:
                 await writer.write(chunk)
             else:
-                await writer.write(chunk[:remaining_bytes])
-                remaining_bytes -= len(chunk)
+                to_write = (
+                    chunk if remaining_bytes >= len(chunk) else chunk[:remaining_bytes]
+                )
+                await writer.write(to_write)
+                written = len(to_write)
+                remaining_bytes -= written
                 if remaining_bytes <= 0:
                     return
             loop_count += 1

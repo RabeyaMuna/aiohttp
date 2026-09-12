@@ -371,7 +371,7 @@ class EnsureOctetStream(Message):
         The way this class is used guarantees that content-type will
         be present so simplify the checks wrt to the base implementation.
         """
-        value = self.get("content-type").lower()
+        value = (self.get("content-type") or "").lower()
 
         # Based on the implementation of _splitparam in the standard library
         ctype, sep, _ = value.partition(";")
@@ -646,7 +646,6 @@ class TimeoutHandle:
 
 
 class BaseTimerContext(ContextManager["BaseTimerContext"]):
-
     __slots__ = ()
 
     def assert_timeout(self) -> None:
@@ -654,7 +653,6 @@ class BaseTimerContext(ContextManager["BaseTimerContext"]):
 
 
 class TimerNoop(BaseTimerContext):
-
     __slots__ = ()
 
     def __enter__(self) -> BaseTimerContext:

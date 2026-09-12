@@ -93,6 +93,9 @@ def blockbuster(request: pytest.FixtureRequest) -> Iterator[None]:
         # synchronization in async code.
         # Allow lock.acquire calls to prevent these false positives
         bb.functions["threading.Lock.acquire"].deactivate()
+        # Allow buffered writer writes (e.g., importlib bytecode caching) to avoid
+        # blocking errors during first-run .pyc writes
+        bb.functions["io.BufferedWriter.write"].deactivate()
         yield
 
 

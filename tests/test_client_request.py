@@ -765,10 +765,15 @@ async def test_content_type_auto_header_content_length_no_skip(
 async def test_urlencoded_formdata_charset(
     loop: asyncio.AbstractEventLoop, conn: mock.Mock
 ) -> None:
+    import codecs
+
+    # preload codec to avoid first-import bytecode writes during the test
+    codecs.lookup("koi8_r")
+
     req = ClientRequest(
         "post",
         URL("http://python.org"),
-        data=aiohttp.FormData({"hey": "you"}, charset="koi8-r"),
+        data=aiohttp.FormData({"hey": b"you"}, charset="koi8-r"),
         loop=loop,
     )
     async with await req.send(conn):

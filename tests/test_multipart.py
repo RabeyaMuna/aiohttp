@@ -405,10 +405,7 @@ class TestPartReader:
     async def test_read_with_content_transfer_encoding_binary(
         self, encoding: str
     ) -> None:
-        data = (
-            b"\xd0\x9f\xd1\x80\xd0\xb8\xd0\xb2\xd0\xb5\xd1\x82,"
-            b" \xd0\xbc\xd0\xb8\xd1\x80!"
-        )
+        data = b"\xd0\x9f\xd1\x80\xd0\xb8\xd0\xb2\xd0\xb5\xd1\x82, \xd0\xbc\xd0\xb8\xd1\x80!"
         h = CIMultiDictProxy(CIMultiDict({CONTENT_TRANSFER_ENCODING: encoding}))
         with Stream(data + b"\r\n--:--") as stream:
             obj = aiohttp.BodyPartReader(BOUNDARY, h, stream)

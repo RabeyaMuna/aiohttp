@@ -85,35 +85,42 @@ def _discover_path_importables(
         )
 
 
-@pytest.mark.parametrize(
-    "import_path",
-    _mark_aiohttp_worker_for_skipping(_find_all_importables(aiohttp)),
-)
-def test_no_warnings(import_path: str) -> None:
+# parametrization moved into test_no_warnings to avoid eager evaluation at import time
+
+
+def test_no_warnings() -> None:
     """Verify that exploding importables doesn't explode.
 
     This is seeking for any import errors including ones caused
     by circular imports.
     """
-    imp_cmd = (
-        # fmt: off
-        sys.executable,
-        "-W", "error",
-        # The following deprecation warning is triggered by importing
-        # `gunicorn.util`. Hopefully, it'll get fixed in the future. See
-        # https://github.com/benoitc/gunicorn/issues/2840 for detail.
-        "-W", "ignore:module 'sre_constants' is "
-        "deprecated:DeprecationWarning:pkg_resources._vendor.pyparsing",
-        # Also caused by `gunicorn.util` importing `pkg_resources`:
-        "-W", "ignore:Creating a LegacyVersion has been deprecated and "
-        "will be removed in the next major release:"
-        "DeprecationWarning:",
-        # Deprecation warning emitted by setuptools v67.5.0+ triggered by importing
-        # `gunicorn.util`.
-        "-W", "ignore:pkg_resources is deprecated as an API:"
-        "DeprecationWarning",
-        "-c", f"import {import_path!s}",
-        # fmt: on
-    )
+    for import_path in _mark_aiohttp_worker_for_skipping(
+        _find_all_importables(aiohttp)
+    ):
+        imp_cmd = (
+            # fmt: off
+            sys.executable,
+            "-B",
+            "-W",
+            "error",
+            # The following deprecation warning is triggered by importing
+            # `gunicorn.util`. Hopefully, it'll get fixed in the future. See
+            # https://github.com/benoitc/gunicorn/issues/2840 for detail.
+            "-W",
+            "ignore:module 'sre_constants' is "
+            "deprecated:DeprecationWarning:pkg_resources._vendor.pyparsing",
+            # Also caused by `gunicorn.util` importing `pkg_resources`:
+            "-W",
+            "ignore:Creating a LegacyVersion has been deprecated and "
+            "will be removed in the next major release:"
+            "DeprecationWarning:",
+            # Deprecation warning emitted by setuptools v67.5.0+ triggered by importing
+            # `gunicorn.util`.
+            "-W",
+            "ignore:pkg_resources is deprecated as an API:" "DeprecationWarning",
+            "-c",
+            f"import {import_path!s}",
+            # fmt: on
+        )
 
-    subprocess.check_call(imp_cmd)
+        subprocess.check_call(imp_cmd)

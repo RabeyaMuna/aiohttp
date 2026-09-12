@@ -3,6 +3,11 @@
 import asyncio
 import datetime
 import http.cookies
+
+# Pre-import commonly used encodings to avoid first-time codec imports writing
+# bytecode cache files (__pycache__/.pyc) while tests run under blocking-I/O
+# detectors. This prevents BlockingError from tools like blockbuster.
+import importlib
 import io
 import json
 import logging
@@ -51,6 +56,9 @@ from aiohttp.payload import (
 from aiohttp.pytest_plugin import AiohttpClient, AiohttpServer
 from aiohttp.test_utils import TestClient, TestServer, unused_port
 from aiohttp.typedefs import Handler, Query
+
+importlib.import_module("encodings.koi8_r")
+importlib.import_module("encodings.cp1251")
 
 
 @pytest.fixture(autouse=True)
@@ -768,7 +776,6 @@ async def test_ssl_client_alpn(
     aiohttp_client: AiohttpClient,
     ssl_ctx: ssl.SSLContext,
 ) -> None:
-
     async def handler(request: web.Request) -> web.Response:
         assert request.transport is not None
         sslobj = request.transport.get_extra_info("ssl_object")
@@ -5203,9 +5210,7 @@ async def test_invalid_redirect_origin_closes_payload(
     ):
         await client.post("/redirect", data=payload)
 
-    assert (
-        payload.close_called
-    ), "Payload.close() was not called when InvalidUrlRedirectClientError (invalid origin) was raised"
+    assert payload.close_called, "Payload.close() was not called when InvalidUrlRedirectClientError (invalid origin) was raised"
 
 
 async def test_amazon_like_cookie_scenario(aiohttp_client: AiohttpClient) -> None:
