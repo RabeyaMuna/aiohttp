@@ -11,7 +11,7 @@ from hashlib import md5, sha1, sha256
 from http.cookies import BaseCookie
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import Any
+from typing import TYPE_CHECKING, Any
 from unittest import mock
 from uuid import uuid4
 
@@ -26,14 +26,19 @@ try:
 except ImportError:  # For downstreams only  # pragma: no cover
     HAS_BLOCKBUSTER = False
 
-from aiohttp import payload
-from aiohttp.client import ClientSession
-from aiohttp.client_proto import ResponseHandler
-from aiohttp.client_reqrep import ClientRequest, ClientRequestArgs, ClientResponse
-from aiohttp.compression_utils import ZLibBackend, ZLibBackendProtocol, set_zlib_backend
-from aiohttp.helpers import TimerNoop
-from aiohttp.http import WS_KEY, HttpVersion11
-from aiohttp.test_utils import get_unused_port_socket, loop_context
+if TYPE_CHECKING:
+    from aiohttp import payload
+    from aiohttp.client import ClientSession
+    from aiohttp.client_proto import ResponseHandler
+    from aiohttp.client_reqrep import ClientRequest, ClientRequestArgs, ClientResponse
+    from aiohttp.compression_utils import (
+        ZLibBackend,
+        ZLibBackendProtocol,
+        set_zlib_backend,
+    )
+    from aiohttp.helpers import TimerNoop
+    from aiohttp.http import WS_KEY, HttpVersion11
+    from aiohttp.test_utils import get_unused_port_socket, loop_context
 
 try:
     import trustme

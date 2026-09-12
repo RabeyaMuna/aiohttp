@@ -922,9 +922,9 @@ class TCPConnector(BaseConnector):
 
         self._use_dns_cache = use_dns_cache
         self._cached_hosts = _DNSCacheTable(ttl=ttl_dns_cache)
-        self._throttle_dns_futures: dict[tuple[str, int], set[asyncio.Future[None]]] = (
-            {}
-        )
+        self._throttle_dns_futures: dict[
+            tuple[str, int], set[asyncio.Future[None]]
+        ] = {}
         self._family = family
         self._local_addr_infos = aiohappyeyeballs.addr_to_addr_infos(local_addr)
         self._happy_eyeballs_delay = happy_eyeballs_delay
@@ -1279,10 +1279,6 @@ class TCPConnector(BaseConnector):
         """Wrap the raw TCP transport with TLS."""
         tls_proto = self._factory()  # Create a brand new proto for TLS
         sslcontext = self._get_ssl_context(req)
-        if TYPE_CHECKING:
-            # _start_tls_connection is unreachable in the current code path
-            # if sslcontext is None.
-            assert sslcontext is not None
 
         try:
             async with ceil_timeout(

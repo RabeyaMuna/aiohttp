@@ -395,6 +395,8 @@ class ClientSession:
                 context["source_traceback"] = self._source_traceback
             self._loop.call_exception_handler(context)
 
+    from typing import TYPE_CHECKING
+
     if sys.version_info >= (3, 11) and TYPE_CHECKING:
 
         def request(

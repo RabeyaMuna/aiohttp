@@ -5,16 +5,26 @@ import socket
 import sys
 import warnings
 from argparse import ArgumentParser
-from collections.abc import Awaitable, Callable, Iterable, Iterable as TypingIterable
+from collections.abc import Awaitable, Callable, Iterable
+from collections.abc import Iterable as TypingIterable
 from contextlib import suppress
 from importlib import import_module
-from typing import Any, cast
+from typing import TYPE_CHECKING, Any, cast
 
 from .abc import AbstractAccessLogger
 from .helpers import AppKey
 from .log import access_logger
 from .typedefs import PathLike
-from .web_app import Application, CleanupError
+
+# Avoid importing .web_app at module import time to prevent executing code in
+# that module (which may reference NAMEs like TYPE_CHECKING). Only import for
+# type checking; at runtime provide placeholders to be resolved lazily if needed.
+if TYPE_CHECKING:
+    from .web_app import Application, CleanupError  # type: ignore
+else:
+    Application = None  # type: ignore
+    CleanupError = None  # type: ignore
+
 from .web_exceptions import (
     HTTPAccepted,
     HTTPBadGateway,
@@ -379,8 +389,9 @@ async def _run_app(
         if print:  # pragma: no branch
             names = sorted(str(s.name) for s in runner.sites)
             print(
-                "======== Running on {} ========\n"
-                "(Press CTRL+C to quit)".format(", ".join(names))
+                "======== Running on {} ========\n" "(Press CTRL+C to quit)".format(
+                    ", ".join(names)
+                )
             )
 
         # sleep forever by 1 hour intervals,
