@@ -213,7 +213,6 @@ class AbstractRoute(abc.ABC):
 
 
 class UrlMappingMatchInfo(BaseDict, AbstractMatchInfo):
-
     __slots__ = ("_route", "_apps", "_current_app", "_frozen")
 
     def __init__(self, match_dict: dict[str, str], route: AbstractRoute) -> None:
@@ -276,7 +275,6 @@ class UrlMappingMatchInfo(BaseDict, AbstractMatchInfo):
 
 
 class MatchInfoError(UrlMappingMatchInfo):
-
     __slots__ = ("_exception",)
 
     def __init__(self, http_exception: HTTPException) -> None:
@@ -786,7 +784,7 @@ class Domain(AbstractRuleMatching):
         assert url.raw_host is not None
         if not all(self.re_part.fullmatch(x) for x in url.raw_host.split(".")):
             raise ValueError("Domain not valid")
-        if url.port == 80:
+        if url.port in (None, 80):
             return url.raw_host
         return f"{url.raw_host}:{url.port}"
 

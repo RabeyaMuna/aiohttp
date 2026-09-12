@@ -542,6 +542,8 @@ class RequestHandler(BaseProtocol, Generic[_Request]):
             resp = self.handle_error(request, 504)
             resp, reset = await self.finish_response(request, resp, start_time)
         except Exception as exc:
+            if isinstance(exc, AssertionError):
+                raise
             resp = self.handle_error(request, 500, exc)
             resp, reset = await self.finish_response(request, resp, start_time)
         else:

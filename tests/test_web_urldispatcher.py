@@ -381,7 +381,7 @@ async def test_handler_metadata_persistence() -> None:
 
     async def async_handler(request: web.Request) -> web.Response:
         """Doc"""
-        assert False
+        return web.Response(text="OK")
 
     app.router.add_get("/async", async_handler)
 
@@ -957,7 +957,7 @@ async def test_subapp_domain_routing_same_path(aiohttp_client: AiohttpClient) ->
     sub_app = web.Application()
 
     async def mainapp_handler(request: web.Request) -> web.Response:
-        assert False
+        return web.Response(text="MAINAPP")
 
     async def subapp_handler(request: web.Request) -> web.Response:
         return web.Response(text="SUBAPP")
