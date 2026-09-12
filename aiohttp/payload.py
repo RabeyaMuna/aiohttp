@@ -434,6 +434,43 @@ class StringPayload(BytesPayload):
                 content_type = "text/plain; charset=%s" % encoding
             real_encoding = encoding
 
+        # Normalize and validate the extracted charset before using it to
+        # encode the string. We try to resolve a codec name and fall back
+        # to utf-8 on failure to avoid passing an unsupported name to
+        # str.encode which would raise a LookupError/TypeError.
+        try:
+            import codecs
+
+            normalized_encoding = (
+                (real_encoding or "").replace("-", "_").strip().lower()
+            )
+            if not normalized_encoding:
+                normalized_encoding = "utf-8"
+            codec_info = codecs.lookup(normalized_encoding)
+            # Use the canonical codec name
+            real_encoding = codec_info.name
+        except Exception:
+            # Fallback to utf-8 and ensure content_type reflects that
+            real_encoding = "utf-8"
+            if content_type is None:
+                content_type = "text/plain; charset=utf-8"
+            else:
+                # If a charset parameter exists, replace its value; otherwise append it.
+                parts = content_type.split(";")
+                new_parts = []
+                replaced = False
+                for p in parts:
+                    if "charset=" in p.lower():
+                        # Preserve leading/trailing spacing pattern
+                        prefix = p[: p.lower().find("charset=")]
+                        new_parts.append(f"{prefix}charset={real_encoding}")
+                        replaced = True
+                    else:
+                        new_parts.append(p)
+                if not replaced:
+                    new_parts.append(f" charset={real_encoding}")
+                content_type = ";".join(new_parts)
+
         super().__init__(
             value.encode(real_encoding),
             encoding=real_encoding,

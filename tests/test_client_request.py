@@ -768,7 +768,7 @@ async def test_urlencoded_formdata_charset(
     req = ClientRequest(
         "post",
         URL("http://python.org"),
-        data=aiohttp.FormData({"hey": "you"}, charset="koi8-r"),
+        data=aiohttp.FormData({"hey": b"you"}, charset="koi8-r"),
         loop=loop,
     )
     async with await req.send(conn):

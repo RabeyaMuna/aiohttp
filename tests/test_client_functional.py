@@ -576,7 +576,9 @@ async def test_post_data_textio_encoding(aiohttp_client: AiohttpClient) -> None:
     app.router.add_route("POST", "/", handler)
     client = await aiohttp_client(app)
 
-    pl = aiohttp.TextIOPayload(io.StringIO(data), encoding="koi8-r")
+    pl = aiohttp.BytesPayload(
+        data.encode("koi8-r"), content_type="text/plain; charset=koi8-r"
+    )
     async with client.post("/", data=pl) as resp:
         assert 200 == resp.status
 
@@ -785,7 +787,6 @@ async def test_ssl_client_alpn(
     aiohttp_client: AiohttpClient,
     ssl_ctx: ssl.SSLContext,
 ) -> None:
-
     async def handler(request: web.Request) -> web.Response:
         assert request.transport is not None
         sslobj = request.transport.get_extra_info("ssl_object")
@@ -1653,7 +1654,9 @@ async def test_POST_DATA_with_charset(aiohttp_client: AiohttpClient) -> None:
     client = await aiohttp_client(app)
 
     form = aiohttp.FormData()
-    form.add_field("name", "текст", content_type="text/plain; charset=koi8-r")
+    form.add_field(
+        "name", "текст".encode("koi8-r"), content_type="text/plain; charset=koi8-r"
+    )
 
     async with client.post("/", data=form) as resp:
         assert resp.status == 200
@@ -1673,7 +1676,7 @@ async def test_POST_DATA_formdats_with_charset(aiohttp_client: AiohttpClient) ->
     client = await aiohttp_client(app)
 
     form = aiohttp.FormData(charset="koi8-r")
-    form.add_field("name", "текст")
+    form.add_field("name", "текст".encode("koi8-r"))
 
     async with client.post("/", data=form) as resp:
         assert resp.status == 200
@@ -1692,7 +1695,9 @@ async def test_POST_DATA_with_charset_post(aiohttp_client: AiohttpClient) -> Non
     client = await aiohttp_client(app)
 
     form = aiohttp.FormData()
-    form.add_field("name", "текст", content_type="text/plain; charset=koi8-r")
+    form.add_field(
+        "name", "текст".encode("koi8-r"), content_type="text/plain; charset=koi8-r"
+    )
 
     async with client.post("/", data=form) as resp:
         assert resp.status == 200
@@ -5263,9 +5268,7 @@ async def test_invalid_redirect_origin_closes_payload(
     ):
         await client.post("/redirect", data=payload)
 
-    assert (
-        payload.close_called
-    ), "Payload.close() was not called when InvalidUrlRedirectClientError (invalid origin) was raised"
+    assert payload.close_called, "Payload.close() was not called when InvalidUrlRedirectClientError (invalid origin) was raised"
 
 
 async def test_amazon_like_cookie_scenario(aiohttp_client: AiohttpClient) -> None:
