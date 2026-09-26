@@ -204,7 +204,7 @@ def parse_cookie_header(header: str) -> list[tuple[str, Morsel[str]]]:
         # setting protected attributes directly and unlikely to change since it would
         # break pickling.
         morsel.__setstate__(  # type: ignore[attr-defined]
-            {"key": key, "value": _unquote(value), "coded_value": value}
+            {"key": key, "value": _sanitize_cookie_value(_unquote(value)), "coded_value": value}
         )
 
         cookies.append((key, morsel))
@@ -277,7 +277,7 @@ def parse_set_cookie_headers(headers: Sequence[str]) -> list[tuple[str, Morsel[s
                     break
                 elif current_morsel is not None:
                     # Regular attribute with value
-                    current_morsel[lower_key] = _unquote(value)
+                    current_morsel[lower_key] = _sanitize_cookie_value(_unquote(value))
             elif value is not None:
                 # This is a cookie name=value pair
                 # Validate the name
@@ -295,7 +295,7 @@ def parse_set_cookie_headers(headers: Sequence[str]) -> list[tuple[str, Morsel[s
                     # setting protected attributes directly and unlikely to change since it would
                     # break pickling.
                     current_morsel.__setstate__(  # type: ignore[attr-defined]
-                        {"key": key, "value": _unquote(value), "coded_value": value}
+                        {"key": key, "value": _sanitize_cookie_value(_unquote(value)), "coded_value": value}
                     )
                     parsed_cookies.append((key, current_morsel))
                     morsel_seen = True
@@ -304,3 +304,15 @@ def parse_set_cookie_headers(headers: Sequence[str]) -> list[tuple[str, Morsel[s
                 break
 
     return parsed_cookies
+
+
+def _sanitize_cookie_value(value: str) -> str:
+    """Remove control characters from cookie value for Python 3.14+ compatibility.
+
+    Python 3.14 added validation that rejects control characters in cookie values.
+    This function strips control characters (ASCII 0-31 excluding tab, newline,
+    carriage return) from the value to prevent CookieError.
+    """
+    # Remove control characters (ASCII 0-31 except tab (0x09), newline (0x0A),
+    # carriage return (0x0D))
+    return re.sub(r"[\x00-\x08\x0b\x0c\x0e-\x1f]", "", value)

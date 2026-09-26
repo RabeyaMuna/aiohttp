@@ -390,7 +390,7 @@ def parse_content_type(raw: str) -> tuple[str, MappingProxyType[str, str]]:
     MappingProxyType of parameters. The default returned value
     is `application/octet-stream`
     """
-    msg = HeaderParser(EnsureOctetStream, policy=HTTP).parsestr(f"Content-Type: {raw}")
+    msg = HeaderParser(EnsureOctetStream, policy=HTTP).parsestr(f"Content-Type: {raw}")  # type: ignore[arg-type]
     content_type = msg.get_content_type()
     params = msg.get_params(())
     content_dict = dict(params[1:])  # First element is content type again
