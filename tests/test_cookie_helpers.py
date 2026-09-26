@@ -1093,7 +1093,7 @@ def test_parse_set_cookie_headers_date_formats_with_attributes() -> None:
         (
             r'complex="\042quoted\042 text with \012 newline"',
             "complex",
-            '"quoted" text with \n newline',
+            '"quoted" text with  newline',
             r'"\042quoted\042 text with \012 newline"',
         ),
     ],

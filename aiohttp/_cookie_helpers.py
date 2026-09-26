@@ -44,6 +44,10 @@ _COOKIE_BOOL_ATTRS = frozenset(  # AKA Morsel._flags
     ("secure", "httponly", "partitioned")
 )
 
+# Regex to match control characters (0x00-0x1F, 0x7F-0x9F) for sanitization
+# Python 3.14+ rejects control characters in cookie values
+_COOKIE_CONTROL_CHARS_RE = re.compile(r"[\x00-\x1f\x7f-\x9f]")
+
 # SimpleCookie's pattern for parsing cookies with relaxed validation
 # Based on http.cookies pattern but extended to allow more characters in cookie names
 # to handle real-world cookies (fixes #2683)
@@ -107,7 +111,7 @@ def preserve_morsel_with_coded_value(cookie: Morsel[str]) -> Morsel[str]:
     # setting protected attributes directly and unlikely to change since it would
     # break pickling.
     mrsl_val.__setstate__(  # type: ignore[attr-defined]
-        {"key": cookie.key, "value": cookie.value, "coded_value": cookie.coded_value}
+        {"key": cookie.key, "value": _sanitize_cookie_value(cookie.value), "coded_value": cookie.coded_value}
     )
     return mrsl_val
 
@@ -155,6 +159,14 @@ def _unquote(value: str) -> str:
     #    \"   --> "
     #
     return _unquote_sub(_unquote_replace, value)
+
+def _sanitize_cookie_value(value: str) -> str:
+    """Remove control characters from a cookie value.
+
+    Python 3.14+ rejects control characters in cookie values via
+    http.cookies.Morsel. This function strips them to ensure compatibility.
+    """
+    return _COOKIE_CONTROL_CHARS_RE.sub("", value)
 
 
 def parse_cookie_header(header: str) -> list[tuple[str, Morsel[str]]]:
@@ -204,7 +216,7 @@ def parse_cookie_header(header: str) -> list[tuple[str, Morsel[str]]]:
         # setting protected attributes directly and unlikely to change since it would
         # break pickling.
         morsel.__setstate__(  # type: ignore[attr-defined]
-            {"key": key, "value": _unquote(value), "coded_value": value}
+            {"key": key, "value": _sanitize_cookie_value(_unquote(value)), "coded_value": value}
         )
 
         cookies.append((key, morsel))
@@ -295,7 +307,7 @@ def parse_set_cookie_headers(headers: Sequence[str]) -> list[tuple[str, Morsel[s
                     # setting protected attributes directly and unlikely to change since it would
                     # break pickling.
                     current_morsel.__setstate__(  # type: ignore[attr-defined]
-                        {"key": key, "value": _unquote(value), "coded_value": value}
+                        {"key": key, "value": _sanitize_cookie_value(_unquote(value)), "coded_value": value}
                     )
                     parsed_cookies.append((key, current_morsel))
                     morsel_seen = True
