@@ -157,6 +157,18 @@ def _unquote(value: str) -> str:
     return _unquote_sub(_unquote_replace, value)
 
 
+
+def _sanitize_cookie_value(value: str) -> str:
+    """
+    Sanitize a cookie value by removing control characters.
+
+    Python 3.13+ enforces stricter validation in http.cookies.Morsel,
+    rejecting control characters in cookie values. This function strips
+    control characters (except tab) to ensure compatibility.
+    """
+    return ''.join(ch for ch in value if ord(ch) >= 32 or ch == '	')
+
+
 def parse_cookie_header(header: str) -> list[tuple[str, Morsel[str]]]:
     """
     Parse a Cookie header according to RFC 6265 Section 5.4.
@@ -204,7 +216,7 @@ def parse_cookie_header(header: str) -> list[tuple[str, Morsel[str]]]:
         # setting protected attributes directly and unlikely to change since it would
         # break pickling.
         morsel.__setstate__(  # type: ignore[attr-defined]
-            {"key": key, "value": _unquote(value), "coded_value": value}
+            {"key": key, "value": _sanitize_cookie_value(_unquote(value)), "coded_value": value}
         )
 
         cookies.append((key, morsel))
@@ -277,7 +289,7 @@ def parse_set_cookie_headers(headers: Sequence[str]) -> list[tuple[str, Morsel[s
                     break
                 elif current_morsel is not None:
                     # Regular attribute with value
-                    current_morsel[lower_key] = _unquote(value)
+                    current_morsel[lower_key] = _sanitize_cookie_value(_unquote(value))
             elif value is not None:
                 # This is a cookie name=value pair
                 # Validate the name
@@ -295,7 +307,7 @@ def parse_set_cookie_headers(headers: Sequence[str]) -> list[tuple[str, Morsel[s
                     # setting protected attributes directly and unlikely to change since it would
                     # break pickling.
                     current_morsel.__setstate__(  # type: ignore[attr-defined]
-                        {"key": key, "value": _unquote(value), "coded_value": value}
+                        {"key": key, "value": _sanitize_cookie_value(_unquote(value)), "coded_value": value}
                     )
                     parsed_cookies.append((key, current_morsel))
                     morsel_seen = True
