@@ -16,6 +16,7 @@ __all__ = (
     "parse_set_cookie_headers",
     "parse_cookie_header",
     "preserve_morsel_with_coded_value",
+    "sanitize_cookie_value",
 )
 
 # Cookie parsing constants
@@ -110,6 +111,31 @@ def preserve_morsel_with_coded_value(cookie: Morsel[str]) -> Morsel[str]:
         {"key": cookie.key, "value": cookie.value, "coded_value": cookie.coded_value}
     )
     return mrsl_val
+
+
+
+def sanitize_cookie_value(cookie_val: str) -> str:
+    """
+    Sanitize a cookie value to be compatible with Python 3.13+'s stricter validation.
+
+    Python 3.13's http.cookies.Morsel.set() rejects control characters
+    (ord < 0x20 or == 0x7F) in cookie values. This function removes
+    such characters to prevent CookieError.
+
+    Args:
+        cookie_val: The cookie value to sanitize
+
+    Returns:
+        The sanitized cookie value with control characters removed
+
+    """
+    if not cookie_val:
+        return cookie_val
+    # Remove control characters that Python 3.13+ rejects
+    # (chars < 0x20 or == 0x7F)
+    return "".join(c for c in cookie_val if not (ord(c) < 0x20 or ord(c) == 0x7F))
+
+
 
 
 _unquote_sub = re.compile(r"\\(?:([0-3][0-7][0-7])|(.))").sub

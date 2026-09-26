@@ -67,7 +67,7 @@ mypy==1.18.2 ; implementation_name == "cpython"
     # via -r requirements/test-common.in
 mypy-extensions==1.1.0
     # via mypy
-packaging==25.0
+packaging==26.3
     # via
     #   gunicorn
     #   pytest
@@ -116,7 +116,7 @@ python-dateutil==2.9.0.post0
     # via freezegun
 python-on-whales==0.78.0
     # via -r requirements/test-common.in
-rich==14.2.0
+rich==14.3.4
     # via pytest-codspeed
 setuptools-git==1.2
     # via -r requirements/test-common.in

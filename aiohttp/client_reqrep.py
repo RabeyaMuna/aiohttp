@@ -21,6 +21,7 @@ from ._cookie_helpers import (
     parse_cookie_header,
     parse_set_cookie_headers,
     preserve_morsel_with_coded_value,
+    sanitize_cookie_value,
 )
 from .abc import AbstractStreamWriter
 from .client_exceptions import (
@@ -1025,7 +1026,7 @@ class ClientRequest:
                 # Use helper to preserve coded_value exactly as sent by server
                 c[name] = preserve_morsel_with_coded_value(value)
             else:
-                c[name] = value  # type: ignore[assignment]
+                c[name] = sanitize_cookie_value(value)  # type: ignore[assignment]
 
         self.headers[hdrs.COOKIE] = c.output(header="", sep=";").strip()
 

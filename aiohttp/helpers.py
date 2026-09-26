@@ -23,6 +23,7 @@ from contextlib import suppress
 from email.parser import HeaderParser
 from email.utils import parsedate
 from http.cookies import SimpleCookie
+from ._cookie_helpers import sanitize_cookie_value
 from math import ceil
 from pathlib import Path
 from types import MappingProxyType, TracebackType
@@ -952,7 +953,7 @@ class CookieMixin:
         if self._cookies is None:
             self._cookies = SimpleCookie()
 
-        self._cookies[name] = value
+        self._cookies[name] = sanitize_cookie_value(value)
         c = self._cookies[name]
 
         if expires is not None:

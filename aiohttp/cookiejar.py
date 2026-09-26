@@ -16,7 +16,7 @@ from typing import Union
 
 from yarl import URL
 
-from ._cookie_helpers import preserve_morsel_with_coded_value
+from ._cookie_helpers import preserve_morsel_with_coded_value, sanitize_cookie_value
 from .abc import AbstractCookieJar, ClearCookiePredicate
 from .helpers import is_ip_address
 from .typedefs import LooseCookies, PathLike, StrOrURL
@@ -232,7 +232,7 @@ class CookieJar(AbstractCookieJar):
         for name, cookie in cookies:
             if not isinstance(cookie, Morsel):
                 tmp = SimpleCookie()
-                tmp[name] = cookie  # type: ignore[assignment]
+                tmp[name] = sanitize_cookie_value(cookie)  # type: ignore[assignment]
                 cookie = tmp[name]
 
             domain = cookie["domain"]
