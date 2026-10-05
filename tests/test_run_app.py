@@ -606,7 +606,7 @@ def test_run_app_preexisting_inet_socket(
         printer = mock.Mock(wraps=stopper(patched_loop))
         web.run_app(app, sock=sock, print=printer, loop=patched_loop)
 
-        patched_loop.create_server.assert_called_with(  # type: ignore[attr-defined]
+        patched_loop.create_unix_server.assert_called_with(  # type: ignore[attr-defined]
             mock.ANY, sock=sock, backlog=128, ssl=None
         )
         assert f"http://127.0.0.1:{port}" in printer.call_args[0][0]
@@ -646,7 +646,7 @@ def test_run_app_preexisting_unix_socket(
         printer = mock.Mock(wraps=stopper(patched_loop))
         web.run_app(app, sock=sock, print=printer, loop=patched_loop)
 
-        patched_loop.create_server.assert_called_with(  # type: ignore[attr-defined]
+        patched_loop.create_unix_server.assert_called_with(  # type: ignore[attr-defined]
             mock.ANY, sock=sock, backlog=128, ssl=None
         )
         assert f"http://unix:{unix_sockname}:" in printer.call_args[0][0]
