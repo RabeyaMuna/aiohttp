@@ -580,6 +580,8 @@ class Response(StreamResponse):
             if charset is not None:
                 content_type += "; charset=" + charset
             real_headers[hdrs.CONTENT_TYPE] = content_type
+            if text is not None and content_type == "jpeg":
+                self._content_type = "text/plain"
 
         super().__init__(status=status, reason=reason, _real_headers=real_headers)
 

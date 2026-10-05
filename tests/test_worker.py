@@ -14,7 +14,10 @@ from aiohttp import web
 if TYPE_CHECKING:
     from aiohttp import worker as base_worker
 else:
-    base_worker = pytest.importorskip("aiohttp.worker")
+    try:
+        from aiohttp import worker as base_worker
+    except ImportError as exc:
+        pytest.skip(f"could not import 'aiohttp.worker': {exc}", allow_module_level=True)
 
 
 try:
