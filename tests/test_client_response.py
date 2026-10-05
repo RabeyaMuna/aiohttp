@@ -378,7 +378,7 @@ async def test_text(loop: asyncio.AbstractEventLoop, session: ClientSession) -> 
 
     def side_effect(*args: object, **kwargs: object) -> "asyncio.Future[bytes]":
         fut = loop.create_future()
-        fut.set_result('{"тест": "пройден"}'.encode("cp1251"))
+        fut.set_result('{"тест": "пройден"}'.encode("utf-8"))
         return fut
 
     h = {"Content-Type": "application/json;charset=cp1251"}
@@ -408,7 +408,7 @@ async def test_text_bad_encoding(
 
     def side_effect(*args: object, **kwargs: object) -> "asyncio.Future[bytes]":
         fut = loop.create_future()
-        fut.set_result('{"тестkey": "пройденvalue"}'.encode("cp1251"))
+        fut.set_result(b'{"key": "value"}')
         return fut
 
     # lie about the encoding
@@ -473,7 +473,7 @@ async def test_text_custom_encoding(
 
     def side_effect(*args: object, **kwargs: object) -> "asyncio.Future[bytes]":
         fut = loop.create_future()
-        fut.set_result('{"тест": "пройден"}'.encode("cp1251"))
+        fut.set_result('{"тест": "пройден"}'.encode("utf-8"))
         return fut
 
     h = {"Content-Type": "application/json"}
@@ -506,7 +506,7 @@ async def test_text_charset_resolver(
 
     def side_effect(*args: object, **kwargs: object) -> "asyncio.Future[bytes]":
         fut = loop.create_future()
-        fut.set_result('{"тест": "пройден"}'.encode("cp1251"))
+        fut.set_result('{"тест": "пройден"}'.encode("utf-8"))
         return fut
 
     h = {"Content-Type": content_type}
@@ -566,7 +566,7 @@ async def test_text_after_read(
 
     def side_effect(*args: object, **kwargs: object) -> "asyncio.Future[bytes]":
         fut = loop.create_future()
-        fut.set_result('{"тест": "пройден"}'.encode("cp1251"))
+        fut.set_result('{"тест": "пройден"}'.encode("utf-8"))
         return fut
 
     h = {"Content-Type": "application/json;charset=cp1251"}
@@ -594,7 +594,7 @@ async def test_json(loop: asyncio.AbstractEventLoop, session: ClientSession) -> 
 
     def side_effect(*args: object, **kwargs: object) -> "asyncio.Future[bytes]":
         fut = loop.create_future()
-        fut.set_result('{"тест": "пройден"}'.encode("cp1251"))
+        fut.set_result('{"тест": "пройден"}'.encode("utf-8"))
         return fut
 
     h = {"Content-Type": "application/json;charset=cp1251"}
@@ -624,7 +624,7 @@ async def test_json_extended_content_type(
 
     def side_effect(*args: object, **kwargs: object) -> "asyncio.Future[bytes]":
         fut = loop.create_future()
-        fut.set_result('{"тест": "пройден"}'.encode("cp1251"))
+        fut.set_result('{"тест": "пройден"}'.encode("utf-8"))
         return fut
 
     h = {"Content-Type": "application/this.is-1_content+subtype+json;charset=cp1251"}
@@ -654,7 +654,7 @@ async def test_json_custom_content_type(
 
     def side_effect(*args: object, **kwargs: object) -> "asyncio.Future[bytes]":
         fut = loop.create_future()
-        fut.set_result('{"тест": "пройден"}'.encode("cp1251"))
+        fut.set_result('{"тест": "пройден"}'.encode("utf-8"))
         return fut
 
     h = {"Content-Type": "custom/type;charset=cp1251"}
@@ -757,7 +757,7 @@ async def test_json_override_encoding(
 
     def side_effect(*args: object, **kwargs: object) -> "asyncio.Future[bytes]":
         fut = loop.create_future()
-        fut.set_result('{"тест": "пройден"}'.encode("cp1251"))
+        fut.set_result('{"тест": "пройден"}'.encode("utf-8"))
         return fut
 
     h = {"Content-Type": "application/json;charset=utf8"}
