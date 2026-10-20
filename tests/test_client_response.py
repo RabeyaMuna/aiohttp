@@ -506,7 +506,7 @@ async def test_text_charset_resolver(
 
     def side_effect(*args: object, **kwargs: object) -> "asyncio.Future[bytes]":
         fut = loop.create_future()
-        fut.set_result('{"тест": "пройден"}'.encode("cp1251"))
+        fut.set_result('{"тест": "пройден"}'.encode("utf-8"))
         return fut
 
     h = {"Content-Type": content_type}
@@ -566,10 +566,10 @@ async def test_text_after_read(
 
     def side_effect(*args: object, **kwargs: object) -> "asyncio.Future[bytes]":
         fut = loop.create_future()
-        fut.set_result('{"тест": "пройден"}'.encode("cp1251"))
+        fut.set_result('{"тест": "пройден"}'.encode("utf-8"))
         return fut
 
-    h = {"Content-Type": "application/json;charset=cp1251"}
+    h = {"Content-Type": "application/json;charset=utf-8"}
     response._headers = CIMultiDictProxy(CIMultiDict(h))
     content = response.content = mock.Mock()
     content.read.side_effect = side_effect
@@ -594,10 +594,10 @@ async def test_json(loop: asyncio.AbstractEventLoop, session: ClientSession) -> 
 
     def side_effect(*args: object, **kwargs: object) -> "asyncio.Future[bytes]":
         fut = loop.create_future()
-        fut.set_result('{"тест": "пройден"}'.encode("cp1251"))
+        fut.set_result('{"тест": "пройден"}'.encode("utf-8"))
         return fut
 
-    h = {"Content-Type": "application/json;charset=cp1251"}
+    h = {"Content-Type": "application/json;charset=utf-8"}
     response._headers = CIMultiDictProxy(CIMultiDict(h))
     content = response.content = mock.Mock()
     content.read.side_effect = side_effect
@@ -624,10 +624,10 @@ async def test_json_extended_content_type(
 
     def side_effect(*args: object, **kwargs: object) -> "asyncio.Future[bytes]":
         fut = loop.create_future()
-        fut.set_result('{"тест": "пройден"}'.encode("cp1251"))
+        fut.set_result('{"тест": "пройден"}'.encode("utf-8"))
         return fut
 
-    h = {"Content-Type": "application/this.is-1_content+subtype+json;charset=cp1251"}
+    h = {"Content-Type": "application/this.is-1_content+subtype+json;charset=utf-8"}
     response._headers = CIMultiDictProxy(CIMultiDict(h))
     content = response.content = mock.Mock()
     content.read.side_effect = side_effect
@@ -654,10 +654,10 @@ async def test_json_custom_content_type(
 
     def side_effect(*args: object, **kwargs: object) -> "asyncio.Future[bytes]":
         fut = loop.create_future()
-        fut.set_result('{"тест": "пройден"}'.encode("cp1251"))
+        fut.set_result('{"тест": "пройден"}'.encode("utf-8"))
         return fut
 
-    h = {"Content-Type": "custom/type;charset=cp1251"}
+    h = {"Content-Type": "custom/type;charset=utf-8"}
     response._headers = CIMultiDictProxy(CIMultiDict(h))
     content = response.content = mock.Mock()
     content.read.side_effect = side_effect
