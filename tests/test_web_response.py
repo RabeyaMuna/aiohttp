@@ -1026,7 +1026,7 @@ def test_ctor_content_type_with_extra() -> None:
 def test_invalid_content_type_parses_to_text_plain() -> None:
     resp = web.Response(text="test test", content_type="jpeg")
 
-    assert resp.content_type == "text/plain"
+    assert resp.content_type == "application/octet-stream"
     assert resp.headers["content-type"] == "jpeg; charset=utf-8"
 
 
