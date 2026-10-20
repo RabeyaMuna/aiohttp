@@ -16,7 +16,7 @@ try:
 except AttributeError:
     import asyncio.base_events
 
-    Server = asyncio.base_events.Server
+    Server = asyncio.base_events.Server  # type: ignore[no-redef]
 
 
 class _RunnerMaker(Protocol):
