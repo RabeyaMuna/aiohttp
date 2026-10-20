@@ -82,7 +82,7 @@ def test_terminal_classes_has_status_code() -> None:
     terminals = set()
     for name in dir(web):
         obj = getattr(web, name)
-        if isinstance(obj, type) and issubclass(obj, web.HTTPException):
+        if inspect.isclass(obj) and issubclass(obj, web.HTTPException):
             terminals.add(obj)
 
     dup = frozenset(terminals)
