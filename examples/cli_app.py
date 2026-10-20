@@ -23,7 +23,10 @@ args_key = web.AppKey("args_key", Namespace)
 
 async def display_message(req: web.Request) -> web.StreamResponse:
     args = req.app[args_key]
-    text = "\n".join([args.message] * args.repeat)
+    # Ensure repeat is an integer, fallback to 1 if invalid
+    repeat = int(args.repeat) if hasattr(args, 'repeat') else 1
+    message = args.message if hasattr(args, 'message') else ''
+    text = "\n".join([message] * repeat)
     return web.Response(text=text)
 
 
@@ -37,7 +40,7 @@ def init(argv: Sequence[str] | None) -> web.Application:
 
     # Optional argument
     arg_parser.add_argument(
-        "--repeat", help="number of times to repeat message", type=int, default="1"
+        "--repeat", help="number of times to repeat message", type=int, default=1
     )
 
     # Avoid conflict with -h from `aiohttp.web` CLI parser

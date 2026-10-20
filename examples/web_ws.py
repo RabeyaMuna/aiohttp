@@ -40,10 +40,11 @@ async def wshandler(request: web.Request) -> web.WebSocketResponse | web.Respons
         return resp
 
     finally:
-        request.app[sockets].remove(resp)
-        print("Someone disconnected.")
-        for ws in request.app[sockets]:
-            await ws.send_str("Someone disconnected.")
+        if isinstance(resp, web.WebSocketResponse):
+            request.app[sockets].remove(resp)
+            print("Someone disconnected.")
+            for ws in request.app[sockets]:
+                await ws.send_str("Someone disconnected.")
 
 
 async def on_shutdown(app: web.Application) -> None:

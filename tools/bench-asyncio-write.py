@@ -104,7 +104,7 @@ async def main(loop):
     res.append([":---", ":---", "---:", "---:", "---:", "---:"])
 
     async def bench(job_title, w, body, base=None):
-        it, mean, sd = await time(loop, w[1], writer, c)
+        it, mean, sd = await time(loop, w[1], writer, body)
         res.append(
             (
                 job_title,
