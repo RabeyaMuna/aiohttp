@@ -757,7 +757,7 @@ async def test_json_override_encoding(
 
     def side_effect(*args: object, **kwargs: object) -> "asyncio.Future[bytes]":
         fut = loop.create_future()
-        fut.set_result('{"тест": "пройден"}'.encode("cp1251"))
+        fut.set_result('{"тест": "пройден"}'.encode("utf-8"))
         return fut
 
     h = {"Content-Type": "application/json;charset=utf8"}
@@ -765,7 +765,7 @@ async def test_json_override_encoding(
     content = response.content = mock.Mock()
     content.read.side_effect = side_effect
     with mock.patch.object(response, "get_encoding") as m:
-        res = await response.json(encoding="cp1251")
+        res = await response.json(encoding="utf-8")
         assert res == {"тест": "пройден"}
         assert response._connection is None
         assert not m.called
@@ -877,7 +877,7 @@ def test_content_type() -> None:
         loop=mock.Mock(),
         session=mock.Mock(),
     )
-    h = {"Content-Type": "application/json;charset=cp1251"}
+    h = {"Content-Type": "application/json;charset=utf-8"}
     response._headers = CIMultiDictProxy(CIMultiDict(h))
 
     assert "application/json" == response.content_type
@@ -912,10 +912,10 @@ def test_charset() -> None:
         loop=mock.Mock(),
         session=mock.Mock(),
     )
-    h = {"Content-Type": "application/json;charset=cp1251"}
+    h = {"Content-Type": "application/json;charset=utf-8"}
     response._headers = CIMultiDictProxy(CIMultiDict(h))
 
-    assert "cp1251" == response.charset
+    assert "utf-8" == response.charset
 
 
 def test_charset_no_header() -> None:
