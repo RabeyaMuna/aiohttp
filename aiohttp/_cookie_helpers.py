@@ -26,6 +26,7 @@ __all__ = (
 # This makes the cookie parser more tolerant of real-world cookies
 # while still providing some validation to catch obviously malformed names.
 _COOKIE_NAME_RE = re.compile(r"^[!#$%&\'()*+\-./0-9:<=>?@A-Z\[\]^_`a-z{|}~]+$")
+_COOKIE_CONTROL_CHAR_RE = re.compile(r"[\x00-\x1f\x7f]")
 _COOKIE_KNOWN_ATTRS = frozenset(  # AKA Morsel._reserved
     (
         "path",
@@ -287,6 +288,13 @@ def parse_set_cookie_headers(headers: Sequence[str]) -> list[tuple[str, Morsel[s
                     )
                     current_morsel = None
                 else:
+                    decoded_value = _unquote(value)
+                    if _COOKIE_CONTROL_CHAR_RE.search(decoded_value):
+                        internal_logger.warning(
+                            "Can not load cookies: Control character in cookie %r", key
+                        )
+                        current_morsel = None
+                        continue
                     # Create new morsel
                     current_morsel = Morsel()
                     # Preserve the original value as coded_value (with quotes if present)
@@ -295,7 +303,7 @@ def parse_set_cookie_headers(headers: Sequence[str]) -> list[tuple[str, Morsel[s
                     # setting protected attributes directly and unlikely to change since it would
                     # break pickling.
                     current_morsel.__setstate__(  # type: ignore[attr-defined]
-                        {"key": key, "value": _unquote(value), "coded_value": value}
+                        {"key": key, "value": decoded_value, "coded_value": value}
                     )
                     parsed_cookies.append((key, current_morsel))
                     morsel_seen = True
