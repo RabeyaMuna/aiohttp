@@ -197,7 +197,6 @@ jobs:
       env:
         COLOR: yes
         AIOHTTP_NO_EXTENSIONS: ${{ matrix.no-extensions }}
-        PIP_USER: 1
       run: >-
         python -m pytest --junitxml=junit.xml
       shell: bash
@@ -213,14 +212,12 @@ jobs:
       env:
         COLOR: yes
         AIOHTTP_NO_EXTENSIONS: ${{ matrix.no-extensions }}
-        PIP_USER: 1
         PYTHONDEVMODE: 1
       run: python -m pytest -m dev_mode --cov-append --numprocesses=0
       shell: bash
     - name: Turn coverage into xml
       env:
         COLOR: yes
-        PIP_USER: 1
       run: |
         python -m coverage xml
 
