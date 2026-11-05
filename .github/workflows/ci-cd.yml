@@ -133,16 +133,16 @@ jobs:
         - os: windows
           no-extensions: Y
         include:
-        - pyver: pypy-3.11
+        - pyver: pypy-3.9
           no-extensions: Y
-          os: ubuntu
+          os: ubuntu-24.04
           experimental: false
         - os: ubuntu
           pyver: 3.14t
           no-extensions: ''
           experimental: false
       fail-fast: true
-    runs-on: ${{ matrix.os }}-latest
+    runs-on: ${{ contains(matrix.os, '-') && matrix.os || format('{0}-latest', matrix.os) }}
     continue-on-error: ${{ matrix.experimental }}
     steps:
     - name: Checkout
@@ -197,8 +197,10 @@ jobs:
       env:
         COLOR: yes
         AIOHTTP_NO_EXTENSIONS: ${{ matrix.no-extensions }}
+        PIP_USER: 1
       run: >-
-        python -m pytest --junitxml=junit.xml
+        PATH="${HOME}/Library/Python/3.11/bin:${HOME}/.local/bin:${PATH}"
+        pytest --junitxml=junit.xml
       shell: bash
     - name: Re-run the failing tests with maximum verbosity
       if: failure()
@@ -206,18 +208,20 @@ jobs:
         COLOR: yes
         AIOHTTP_NO_EXTENSIONS: ${{ matrix.no-extensions }}
       run: >-
-        python -m pytest --no-cov --numprocesses=0 -vvvvv --lf && exit 1
+        pytest --no-cov --numprocesses=0 -vvvvv --lf && exit 1
       shell: bash
     - name: Run dev_mode tests
       env:
         COLOR: yes
         AIOHTTP_NO_EXTENSIONS: ${{ matrix.no-extensions }}
+        PIP_USER: 1
         PYTHONDEVMODE: 1
-      run: python -m pytest -m dev_mode --cov-append --numprocesses=0
+      run: pytest -m dev_mode --cov-append --numprocesses=0
       shell: bash
     - name: Turn coverage into xml
       env:
         COLOR: yes
+        PIP_USER: 1
       run: |
         python -m coverage xml
 
