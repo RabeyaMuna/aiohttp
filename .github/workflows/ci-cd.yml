@@ -193,14 +193,10 @@ jobs:
       env:
         AIOHTTP_NO_EXTENSIONS: ${{ matrix.no-extensions }}
       run: python -m pip install -e .
-    - name: Install pytest for PyPy
-      if: ${{ startsWith(matrix.pyver, 'pypy') }}
-      run: python -m pip install pytest
     - name: Run unittests
       env:
         COLOR: yes
         AIOHTTP_NO_EXTENSIONS: ${{ matrix.no-extensions }}
-        PIP_USER: 1
       run: >-
         python -m pytest --junitxml=junit.xml
       shell: bash
@@ -216,14 +212,12 @@ jobs:
       env:
         COLOR: yes
         AIOHTTP_NO_EXTENSIONS: ${{ matrix.no-extensions }}
-        PIP_USER: 1
         PYTHONDEVMODE: 1
       run: python -m pytest -m dev_mode --cov-append --numprocesses=0
       shell: bash
     - name: Turn coverage into xml
       env:
         COLOR: yes
-        PIP_USER: 1
       run: |
         python -m coverage xml
 
@@ -239,3 +233,4 @@ jobs:
       uses: re-actors/alls-green@release/v1
       with:
         jobs: ${{ toJSON(needs) }}
+      
