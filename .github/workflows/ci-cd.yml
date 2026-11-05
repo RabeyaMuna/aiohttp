@@ -135,14 +135,14 @@ jobs:
         include:
         - pyver: pypy-3.9
           no-extensions: Y
-          os: ubuntu-24.04
+          os: ubuntu
           experimental: false
         - os: ubuntu
           pyver: 3.14t
           no-extensions: ''
           experimental: false
       fail-fast: true
-    runs-on: ${{ contains(matrix.os, '-') && matrix.os || format('{0}-latest', matrix.os) }}
+    runs-on: ${{ matrix.os }}-latest
     continue-on-error: ${{ matrix.experimental }}
     steps:
     - name: Checkout
