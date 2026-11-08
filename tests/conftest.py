@@ -1,5 +1,6 @@
 import asyncio
 import base64
+import importlib
 import os
 import socket
 import ssl
@@ -51,6 +52,11 @@ pytest_plugins = ("aiohttp.pytest_plugin", "pytester")
 
 IS_HPUX = sys.platform.startswith("hp-ux")
 IS_LINUX = sys.platform.startswith("linux")
+
+# Load these codecs before async tests start, so blockbuster does not catch
+# Python writing codec module .pyc files during request construction.
+for _codec_module in ("encodings.cp1251", "encodings.koi8_r"):
+    importlib.import_module(_codec_module)
 
 
 @pytest.fixture(autouse=HAS_BLOCKBUSTER)
