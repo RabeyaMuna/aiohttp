@@ -35,6 +35,7 @@ from aiohttp.web_protocol import RequestHandler
 from aiohttp.web_runner import BaseRunner
 
 try:
+    Server: type[asyncio.Server]
     Server = asyncio.Server
 except AttributeError:
     import asyncio.base_events

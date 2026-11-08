@@ -1,0 +1,5 @@
+# Constraints for CI tool bootstrap commands that run before the normal
+# requirement files are installed.
+cryptography==45.0.7 ; implementation_name == "pypy" and python_version < "3.11"
+readme-renderer<42 ; implementation_name == "pypy" and python_version < "3.11"
+twine<7 ; implementation_name == "pypy" and python_version < "3.11"
