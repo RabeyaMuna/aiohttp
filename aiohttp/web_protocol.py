@@ -149,7 +149,6 @@ class RequestHandler(BaseProtocol):
         "_upgrade",
         "_payload_parser",
         "_request_parser",
-        "_reading_paused",
         "logger",
         "debug",
         "access_log",
