@@ -2,6 +2,7 @@ from __future__ import annotations  # TODO(PY311): Remove
 
 import asyncio
 import base64
+import codecs
 import os
 import socket
 import ssl
@@ -64,6 +65,11 @@ pytest_plugins = ("aiohttp.pytest_plugin", "pytester")
 
 IS_HPUX = sys.platform.startswith("hp-ux")
 IS_LINUX = sys.platform.startswith("linux")
+
+# Avoid lazy codec imports while an event loop is running. On free-threaded
+# Python, importing these codecs may write bytecode and trigger blockbuster.
+codecs.lookup("cp1251")
+codecs.lookup("koi8-r")
 
 
 @pytest.fixture(autouse=HAS_BLOCKBUSTER)
