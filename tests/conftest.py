@@ -1,5 +1,6 @@
 import asyncio
 import base64
+import codecs
 import os
 import platform
 import socket
@@ -52,6 +53,11 @@ pytest_plugins = ("aiohttp.pytest_plugin", "pytester")
 
 IS_HPUX = sys.platform.startswith("hp-ux")
 IS_LINUX = sys.platform.startswith("linux")
+
+# Load codecs used by async tests before blockbuster starts monitoring the event loop.
+# A first lookup may import the codec module and write its bytecode cache.
+codecs.lookup("cp1251")
+codecs.lookup("koi8-r")
 
 
 @pytest.fixture(autouse=HAS_BLOCKBUSTER)
@@ -328,6 +334,8 @@ def netrc_home_directory(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> Pat
     netrc_file.write_text("default login netrc_user password netrc_pass\n")
 
     monkeypatch.setenv("HOME", str(home_dir))
+    if platform.system() == "Windows":
+        monkeypatch.setenv("USERPROFILE", str(home_dir))
     # Ensure NETRC env var is not set
     monkeypatch.delenv("NETRC", raising=False)
 
