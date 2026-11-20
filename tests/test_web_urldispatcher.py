@@ -950,8 +950,6 @@ async def test_url_with_many_slashes(aiohttp_client: AiohttpClient) -> None:
     async with client.get("///a") as r:
         assert r.status == 200
 
-
-@pytest.mark.xfail(reason="https://github.com/aio-libs/aiohttp/issues/11665")
 async def test_subapp_domain_routing(aiohttp_client: AiohttpClient) -> None:
     app = web.Application()
     sub_app = web.Application()
