@@ -287,13 +287,13 @@ else:
 # Only display warning when using -Wdefault, -We, -X dev or similar.
 warnings.filterwarnings("ignore", category=NotAppKeyWarning, append=True)
 
-HostSequence = TypingIterable[str]
+_HostSequence = TypingIterable[str]
 
 
 async def _run_app(
     app: Application | Awaitable[Application],
     *,
-    host: str | HostSequence | None = None,
+    host: str | _HostSequence | None = None,
     port: int | None = None,
     path: PathLike | TypingIterable[PathLike] | None = None,
     sock: socket.socket | TypingIterable[socket.socket] | None = None,
@@ -455,7 +455,7 @@ def _cancel_tasks(
 def run_app(
     app: Application | Awaitable[Application],
     *,
-    host: str | HostSequence | None = None,
+    host: str | _HostSequence | None = None,
     port: int | None = None,
     path: PathLike | TypingIterable[PathLike] | None = None,
     sock: socket.socket | TypingIterable[socket.socket] | None = None,
