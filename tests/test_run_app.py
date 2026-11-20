@@ -34,11 +34,12 @@ from aiohttp.log import access_logger
 from aiohttp.web_protocol import RequestHandler
 from aiohttp.web_runner import BaseRunner
 
+import asyncio.base_events
+
+Server: type[asyncio.base_events.Server]
 try:
     Server = asyncio.Server
 except AttributeError:
-    import asyncio.base_events
-
     Server = asyncio.base_events.Server
 
 
