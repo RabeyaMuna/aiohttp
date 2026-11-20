@@ -1077,11 +1077,11 @@ def test_parse_set_cookie_headers_date_formats_with_attributes() -> None:
     ("header", "expected_name", "expected_value", "expected_coded"),
     [
         # Test cookie values with octal escape sequences
-        (r'name="\012newline\012"', "name", "\nnewline\n", r'"\012newline\012"'),
+        (r'name="\012newline\012"', "name", "\\012newline\\012", r'"\012newline\012"'),
         (
             r'tab="\011separated\011values"',
             "tab",
-            "\tseparated\tvalues",
+            "\\011separated\\011values",
             r'"\011separated\011values"',
         ),
         (
@@ -1093,7 +1093,7 @@ def test_parse_set_cookie_headers_date_formats_with_attributes() -> None:
         (
             r'complex="\042quoted\042 text with \012 newline"',
             "complex",
-            '"quoted" text with \n newline',
+            '"quoted" text with \012 newline',
             r'"\042quoted\042 text with \012 newline"',
         ),
     ],
@@ -1486,15 +1486,15 @@ def test_unquote_escaped_backslashes(input_str: str, expected: str) -> None:
     ("input_str", "expected"),
     [
         # Common octal sequences
-        (r'"\012"', "\n"),  # newline
-        (r'"\011"', "\t"),  # tab
-        (r'"\015"', "\r"),  # carriage return
+        (r'"\012"', "\\012"),  # newline
+        (r'"\011"', "\\011"),  # tab
+        (r'"\015"', "\\015"),  # carriage return
         (r'"\040"', " "),  # space
         # Octal sequences in context
-        (r'"line1\012line2"', "line1\nline2"),
-        (r'"tab\011separated"', "tab\tseparated"),
+        (r'"line1\012line2"', "line1\\012line2"),
+        (r'"tab\011separated"', "tab\\011separated"),
         # Multiple octal sequences
-        (r'"\012\011\015"', "\n\t\r"),
+        (r'"\012\011\015"', "\\012\\011\\015"),
         # Mixed octal and regular text
         (r'"hello\040world\041"', "hello world!"),
     ],
@@ -1508,9 +1508,9 @@ def test_unquote_octal_sequences(input_str: str, expected: str) -> None:
     ("input_str", "expected"),
     [
         # Test boundary values
-        (r'"\000"', "\x00"),  # null character
-        (r'"\001"', "\x01"),
-        (r'"\177"', "\x7f"),  # DEL character
+        (r'"\000"', "\\000"),  # null character
+        (r'"\001"', "\\001"),
+        (r'"\177"', "\\177"),  # DEL character
         (r'"\200"', "\x80"),  # Extended ASCII
         (r'"\377"', "\xff"),  # Max octal value
         # Invalid octal sequences (not 3 digits or > 377) are treated as regular escapes
@@ -1527,8 +1527,8 @@ def test_unquote_octal_full_range(input_str: str, expected: str) -> None:
     ("input_str", "expected"),
     [
         # Mix of quotes, backslashes, and octal
-        (r'"say \"hello\"\012new line"', 'say "hello"\nnew line'),
-        (r'"path\\to\\file\011\011data"', "path\\to\\file\t\tdata"),
+        (r'"say \"hello\"\012new line"', 'say "hello"\\012new line'),
+        (r'"path\\to\\file\011\011data"', "path\\to\\file\\011\\011data"),
         # Complex mixed example
         (r'"\042quoted\042 and \134backslash\134"', '"quoted" and \\backslash\\'),
         # Escaped characters that aren't special

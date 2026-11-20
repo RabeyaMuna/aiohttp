@@ -122,9 +122,15 @@ def _unquote_replace(m: re.Match[str]) -> str:
     Handles escaped characters in cookie values:
     - Octal sequences are converted to their character representation
     - Other escaped characters are unescaped by removing the backslash
+    - Control characters (\x00-\x1F, \x7F) are kept as the original octal escape
+      to avoid issues with Python 3.14+ Morsel.__setstate__ validation
     """
     if m[1]:
-        return chr(int(m[1], 8))
+        char = chr(int(m[1], 8))
+        # Control characters are not allowed in cookies in Python 3.14+
+        if ord(char) <= 0x1F or ord(char) == 0x7F:
+            return m[0]  # Keep the original escape sequence
+        return char
     return m[2]
 
 
