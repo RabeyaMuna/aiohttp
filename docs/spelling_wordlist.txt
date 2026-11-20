@@ -385,3 +385,9 @@ yarl
 zlib
 zstandard
 zstd
+aiosignal
+frozenlist
+jitter
+unobvious
+et
+al
