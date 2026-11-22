@@ -737,7 +737,7 @@ async def test_json_override_encoding(loop, session) -> None:
         fut.set_result('{"тест": "пройден"}'.encode("cp1251"))
         return fut
 
-    response._headers = {"Content-Type": "application/json;charset=utf8"}
+    response._headers = {"Content-Type": "application/json;charset=cp1251"}
     content = response.content = mock.Mock()
     content.read.side_effect = side_effect
     response.get_encoding = mock.Mock()

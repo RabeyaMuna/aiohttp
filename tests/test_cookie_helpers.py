@@ -1077,24 +1077,24 @@ def test_parse_set_cookie_headers_date_formats_with_attributes() -> None:
     ("header", "expected_name", "expected_value", "expected_coded"),
     [
         # Test cookie values with octal escape sequences
-        (r'name="\012newline\012"', "name", "\nnewline\n", r'"\012newline\012"'),
+        (r'name="\\012newline\\012"', "name", "\nnewline\n", r'"\\012newline\\012"'),
         (
-            r'tab="\011separated\011values"',
+            r'tab="\\011separated\\011values"',
             "tab",
             "\tseparated\tvalues",
-            r'"\011separated\011values"',
+            r'"\\011separated\\011values"',
         ),
         (
-            r'mixed="hello\040world\041"',
+            r'mixed="hello\\040world\\041"',
             "mixed",
             "hello world!",
-            r'"hello\040world\041"',
+            r'"hello\\040world\\041"',
         ),
         (
-            r'complex="\042quoted\042 text with \012 newline"',
+            r'complex="\\042quoted\\042 text with \\012 newline"',
             "complex",
             '"quoted" text with \n newline',
-            r'"\042quoted\042 text with \012 newline"',
+            r'"\\042quoted\\042 text with \\012 newline"',
         ),
     ],
 )
