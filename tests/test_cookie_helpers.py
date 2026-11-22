@@ -17,6 +17,7 @@ from aiohttp._cookie_helpers import (
     parse_set_cookie_headers,
     preserve_morsel_with_coded_value,
 )
+from aiohttp.helpers import EnsureOctetStream
 
 
 def test_known_attrs_is_superset_of_morsel_reserved() -> None:
