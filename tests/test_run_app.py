@@ -35,11 +35,11 @@ from aiohttp.web_protocol import RequestHandler
 from aiohttp.web_runner import BaseRunner
 
 try:
-    Server = asyncio.Server
+    Server: Type[asyncio.Server] = asyncio.Server
 except AttributeError:
     import asyncio.base_events
 
-    Server = asyncio.base_events.Server
+    Server: Type[asyncio.Server] = asyncio.base_events.Server
 
 
 _has_unix_domain_socks = hasattr(socket, "AF_UNIX")

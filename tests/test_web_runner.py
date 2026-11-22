@@ -12,11 +12,11 @@ from aiohttp.test_utils import get_unused_port_socket
 from aiohttp.web_log import AccessLogger
 
 try:
-    Server = asyncio.Server
+    Server: type[asyncio.Server] = asyncio.Server
 except AttributeError:
     import asyncio.base_events
 
-    Server = asyncio.base_events.Server
+    Server: type[asyncio.base_events.Server] = asyncio.base_events.Server
 
 
 class _RunnerMaker(Protocol):
