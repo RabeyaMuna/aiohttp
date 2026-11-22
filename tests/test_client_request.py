@@ -794,7 +794,7 @@ async def test_urlencoded_formdata_charset(loop, conn) -> None:
     async with await req.send(conn):
         await asyncio.sleep(0)
     assert "application/x-www-form-urlencoded; charset=koi8-r" == req.headers.get(
-        "CONTENT-TYPE"
+        "Content-Type"
     )
     await req.close()
 
