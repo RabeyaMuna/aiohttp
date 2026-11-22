@@ -9,6 +9,7 @@ from http.cookies import (
 )
 
 import pytest
+from packaging import errors
 
 from aiohttp import _cookie_helpers as helpers
 from aiohttp._cookie_helpers import (

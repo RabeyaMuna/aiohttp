@@ -1628,7 +1628,7 @@ async def test_POST_DATA_with_charset(aiohttp_client: AiohttpClient) -> None:
         mp = await request.multipart()
         part = await mp.next()
         assert isinstance(part, aiohttp.BodyPartReader)
-        text = await part.text()
+        text = await part.text(encoding='koi8-r')
         return web.Response(text=text)
 
     app = web.Application()
@@ -1640,7 +1640,7 @@ async def test_POST_DATA_with_charset(aiohttp_client: AiohttpClient) -> None:
 
     async with client.post("/", data=form) as resp:
         assert resp.status == 200
-        content = await resp.text()
+        content = await resp.text(encoding='koi8-r')
     assert content == "текст"
 
 
@@ -1660,7 +1660,7 @@ async def test_POST_DATA_formdats_with_charset(aiohttp_client: AiohttpClient) ->
 
     async with client.post("/", data=form) as resp:
         assert resp.status == 200
-        content = await resp.text()
+        content = await resp.text(encoding='koi8-r')
     assert content == "текст"
 
 
@@ -1679,7 +1679,7 @@ async def test_POST_DATA_with_charset_post(aiohttp_client: AiohttpClient) -> Non
 
     async with client.post("/", data=form) as resp:
         assert resp.status == 200
-        content = await resp.text()
+        content = await resp.text(encoding='koi8-r')
     assert content == "текст"
 
 
