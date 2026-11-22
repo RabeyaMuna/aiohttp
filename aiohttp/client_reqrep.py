@@ -70,6 +70,8 @@ except ImportError:  # pragma: no cover
 __all__ = ("ClientRequest", "ClientResponse", "RequestInfo", "Fingerprint")
 
 
+from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from .client import ClientSession
     from .connector import Connection
